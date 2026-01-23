@@ -19,11 +19,31 @@ export interface IStorage {
   votePoll(pollId: number, optionId: number, userId: string): Promise<void>;
   hasVoted(pollId: number, userId: string): Promise<boolean>;
 
+  // Conversations
+  getConversations(userId: string): Promise<any[]>;
+  createConversation(userId: string, title: string): Promise<any>;
+  
   // Articles
   getArticles(): Promise<Article[]>;
 }
 
 export class DatabaseStorage implements IStorage {
+  // Conversations
+  async getConversations(userId: string): Promise<any[]> {
+    return await db.query.conversations.findMany({
+      where: eq(conversations.userId, userId),
+      orderBy: (conversations, { desc }) => [desc(conversations.createdAt)]
+    });
+  }
+
+  async createConversation(userId: string, title: string, systemPrompt?: string): Promise<any> {
+    const [saved] = await db.insert(conversations).values({
+      userId,
+      title,
+      systemPrompt: systemPrompt || null
+    }).returning();
+    return saved;
+  }
   // Quizzes
   async getQuizzes(): Promise<Quiz[]> {
     return await db.select().from(quizzes);

@@ -81,23 +81,6 @@ export default function Chat() {
     }
   };
 
-  if (!user) {
-    return (
-      <Layout>
-        <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-          <Bot className="w-16 h-16 text-muted-foreground" />
-          <h2 className="text-2xl font-bold">Anmeldung erforderlich</h2>
-          <p className="text-muted-foreground max-w-md">
-            Bitte melde dich an, um mit CivicChat AI zu diskutieren.
-          </p>
-          <Button asChild>
-            <a href="/api/login">Anmelden zum Chatten</a>
-          </Button>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
       <div className="flex h-[calc(100vh-100px)] gap-6">

@@ -13,6 +13,7 @@ import Polls from "@/pages/Polls";
 import News from "@/pages/News";
 import Chat from "@/pages/Chat";
 import About from "@/pages/About";
+import Debate from "@/pages/Debate";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/polls" component={Polls} />
       <Route path="/news" component={News} />
       <Route path="/chat" component={Chat} />
+      <Route path="/debate" component={Debate} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />
     </Switch>

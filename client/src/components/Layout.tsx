@@ -27,6 +27,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/polls", label: "Meinungscheck", icon: Vote },
     { href: "/news", label: "Aktuelle Themen", icon: Newspaper },
     { href: "/chat", label: "CivicChat AI", icon: MessageSquareText },
+    { href: "/debate", label: "Debattieren", icon: MessageSquareText },
     { href: "/about", label: "Über uns", icon: Info },
   ];
 

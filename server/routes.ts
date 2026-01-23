@@ -19,6 +19,20 @@ export async function registerRoutes(
   // Chat Routes - Updated for CivicChat AI
   registerChatRoutes(app);
 
+  // Allow guest chat
+  app.get("/api/conversations", async (req, res) => {
+    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+    const data = await storage.getConversations(userId);
+    res.json(data);
+  });
+
+  app.post("/api/conversations", async (req, res) => {
+    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+    const { title, systemPrompt } = req.body;
+    const convo = await storage.createConversation(userId, title || "Neue politische Diskussion", systemPrompt);
+    res.json(convo);
+  });
+
   // === Quizzes (Wahl-O-Mat) ===
   app.get(api.quizzes.list.path, async (req, res) => {
     const data = await storage.getQuizzes();
