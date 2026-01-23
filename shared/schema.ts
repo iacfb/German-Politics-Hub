@@ -7,12 +7,12 @@ import { users } from "./models/auth";
 export * from "./models/auth";
 export * from "./models/chat";
 
-// === QUIZZES ===
+// === QUIZZES (Wahl-O-Mat) ===
 export const quizzes = pgTable("quizzes", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  category: text("category").notNull(), // 'general', 'economic', 'social'
+  category: text("category").notNull(), // 'allgemein', 'wirtschaft', 'soziales', 'landtag2026'
   imageUrl: text("image_url"),
 });
 
@@ -32,10 +32,10 @@ export const quizOptions = pgTable("quiz_options", {
 
 export const quizResults = pgTable("quiz_results", {
   id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(), // References auth.users.id
+  userId: text("user_id").notNull(),
   quizId: integer("quiz_id").notNull(),
   matchedParty: text("matched_party").notNull(),
-  partyScores: jsonb("party_scores").notNull(), // { "SPD": 10, "CDU": 5 }
+  partyScores: jsonb("party_scores").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -58,7 +58,7 @@ export const quizOptionsRelations = relations(quizOptions, ({ one }) => ({
   }),
 }));
 
-// === POLLS ===
+// === POLLS (Meinungscheck) ===
 export const polls = pgTable("polls", {
   id: serial("id").primaryKey(),
   question: text("question").notNull(),
@@ -92,13 +92,15 @@ export const pollOptionsRelations = relations(pollOptions, ({ one, many }) => ({
   votes: many(pollVotes),
 }));
 
-// === ARTICLES / PROJECTS ===
+// === ARTICLES / PROJECTS (Aktuelle Themen) ===
 export const articles = pgTable("articles", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
+  summary: text("summary"), // Zusammenfassung für Tagesschau-Inhalte
   content: text("content").notNull(),
   type: text("type").notNull(), // 'news', 'project'
   imageUrl: text("image_url"),
+  source: text("source"), // z.B. Tagesschau
   createdAt: timestamp("created_at").defaultNow(),
 });
 

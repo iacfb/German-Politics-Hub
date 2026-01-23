@@ -6,6 +6,7 @@ import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integra
 import { registerChatRoutes } from "./replit_integrations/chat";
 import { db } from "./db";
 import { quizzes, quizQuestions, quizOptions, polls, pollOptions, articles } from "@shared/schema";
+import { eq, sql } from "drizzle-orm";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -15,10 +16,10 @@ export async function registerRoutes(
   await setupAuth(app);
   registerAuthRoutes(app);
 
-  // Chat Routes
+  // Chat Routes - Updated for CivicChat AI
   registerChatRoutes(app);
 
-  // === Quizzes ===
+  // === Quizzes (Wahl-O-Mat) ===
   app.get(api.quizzes.list.path, async (req, res) => {
     const data = await storage.getQuizzes();
     res.json(data);
@@ -26,22 +27,19 @@ export async function registerRoutes(
 
   app.get(api.quizzes.get.path, async (req, res) => {
     const data = await storage.getQuiz(Number(req.params.id));
-    if (!data) return res.status(404).json({ message: "Quiz not found" });
+    if (!data) return res.status(404).json({ message: "Quiz nicht gefunden" });
     res.json(data);
   });
 
   app.post(api.quizzes.submit.path, isAuthenticated, async (req, res) => {
     const quizId = Number(req.params.id);
-    const { answers } = req.body; // Record<questionId, optionId>
+    const { answers } = req.body;
     const userId = (req.user as any).claims.sub;
 
     const quiz = await storage.getQuiz(quizId);
-    if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+    if (!quiz) return res.status(404).json({ message: "Quiz nicht gefunden" });
 
-    // Calculate result
     const scores: Record<string, number> = {};
-    
-    // Iterate over questions to find selected options and sum points
     for (const q of quiz.questions) {
       const selectedOptionId = answers[String(q.id)];
       if (selectedOptionId) {
@@ -52,7 +50,6 @@ export async function registerRoutes(
       }
     }
 
-    // Find max score
     let maxScore = 0;
     let matchedParty = "Neutral";
     Object.entries(scores).forEach(([party, score]) => {
@@ -72,7 +69,7 @@ export async function registerRoutes(
     res.json(result);
   });
 
-  // === Polls ===
+  // === Polls (Meinungscheck) ===
   app.get(api.polls.list.path, async (req, res) => {
     const userId = req.isAuthenticated() ? (req.user as any).claims.sub : undefined;
     const data = await storage.getPolls(userId);
@@ -86,7 +83,7 @@ export async function registerRoutes(
 
     const hasVoted = await storage.hasVoted(pollId, userId);
     if (hasVoted) {
-      return res.status(400).json({ message: "Already voted" });
+      return res.status(400).json({ message: "Bereits abgestimmt" });
     }
 
     await storage.votePoll(pollId, optionId, userId);
@@ -99,9 +96,9 @@ export async function registerRoutes(
     res.json(data);
   });
 
-  // === Seed Data (Simple check) ===
+  // Re-seed with German data if empty or forced
   const existingQuizzes = await storage.getQuizzes();
-  if (existingQuizzes.length === 0) {
+  if (existingQuizzes.length <= 1) { // Forced re-seed for better content
     await seedDatabase();
   }
 
@@ -109,45 +106,47 @@ export async function registerRoutes(
 }
 
 async function seedDatabase() {
-  console.log("Seeding database...");
+  console.log("Seeding database with German content...");
   
-  // Quiz
+  // Clear old data to avoid duplicates with old names
+  await db.delete(quizOptions);
+  await db.delete(quizQuestions);
+  await db.delete(quizzes);
+  await db.delete(pollOptions);
+  await db.delete(polls);
+  await db.delete(articles);
+
+  // Wahl-O-Mat Quizzes
   const [quiz] = await db.insert(quizzes).values({
-    title: "Political Compass Germany",
-    description: "Find out which German political party aligns best with your views.",
-    category: "general",
+    title: "Wahl-O-Mat: Landtagswahl 2026",
+    description: "Finde heraus, welche Partei deine Interessen bei der Landtagswahl 2026 am besten vertritt.",
+    category: "landtag2026",
     imageUrl: "https://images.unsplash.com/photo-1529108190281-9a4f620bc2d8"
   }).returning();
 
   const questions = [
-    { text: "Environmental protection should take precedence over economic growth.", 
+    { text: "Soll das Turbo-Abitur (G8) beibehalten werden?", 
       options: [
-        { text: "Agree", party: "Grüne" },
-        { text: "Disagree", party: "FDP" },
-        { text: "Neutral", party: "SPD" }
+        { text: "Ja", party: "FDP" },
+        { text: "Nein", party: "SPD" },
+        { text: "Neutral", party: "CDU" }
       ]
     },
-    { text: "Germany should increase its military spending.", 
+    { text: "Soll der Ausbau von Windkraftanlagen im Wald erlaubt sein?", 
       options: [
-        { text: "Agree", party: "CDU" },
-        { text: "Disagree", party: "Linke" },
-        { text: "Neutral", party: "SPD" }
+        { text: "Ja", party: "Grüne" },
+        { text: "Nein", party: "CDU" },
+        { text: "Nur unter Auflagen", party: "SPD" }
       ]
     },
-    { text: "Immigration laws should be stricter.", 
+    { text: "Soll die Grunderwerbsteuer für den ersten Hauskauf gesenkt werden?", 
       options: [
-        { text: "Agree", party: "AfD" },
-        { text: "Disagree", party: "Grüne" },
-        { text: "Neutral", party: "FDP" }
-      ]
-    },
-     { text: "Wealth tax should be reintroduced.", 
-      options: [
-        { text: "Agree", party: "SPD" },
-        { text: "Disagree", party: "CDU" },
-        { text: "Strongly Agree", party: "Linke" }
+        { text: "Ja", party: "CDU" },
+        { text: "Nein", party: "Linke" },
+        { text: "Eher Ja", party: "FDP" }
       ]
     }
+    // More questions could be added here for a longer quiz
   ];
 
   for (const q of questions) {
@@ -165,37 +164,54 @@ async function seedDatabase() {
     }
   }
 
-  // Polls
-  const [poll] = await db.insert(polls).values({
-    question: "Should the voting age be lowered to 16 for federal elections?",
-    description: "Currently, the voting age is 18."
-  }).returning();
+  // Meinungscheck (Umfragen)
+  const pollData = [
+    {
+      question: "Wie zufrieden bist du aktuell mit der Bundesregierung?",
+      options: ["Sehr zufrieden", "Zufrieden", "Eher unzufrieden", "Sehr unzufrieden"]
+    },
+    {
+      question: "Wie stehst Du zur Wiedereinführung der Wehrpflicht?",
+      options: ["Dafür", "Dagegen", "Nur als freiwilliges Jahr"]
+    },
+    {
+      question: "Wie wichtig ist dir Klimaschutz im Alltag?",
+      options: ["Sehr wichtig", "Wichtig", "Weniger wichtig", "Gar nicht wichtig"]
+    },
+    {
+      question: "Wie wahrscheinlich ist es, dass du an der nächsten Wahl teilnimmst?",
+      options: ["Sehr wahrscheinlich", "Wahrscheinlich", "Eher unwahrscheinlich", "Sicher nicht"]
+    },
+    {
+      question: "Findest Du, es wird sich in der Politik zu sehr oder zu wenig auf den Klimawandel fokusiert?",
+      options: ["Zu sehr", "Zu wenig", "Genau richtig"]
+    }
+  ];
 
-  await db.insert(pollOptions).values([
-    { pollId: poll.id, text: "Yes, definitely" },
-    { pollId: poll.id, text: "No, keep it at 18" },
-    { pollId: poll.id, text: "Only for local elections" }
-  ]);
+  for (const p of pollData) {
+    const [poll] = await db.insert(polls).values({
+      question: p.question
+    }).returning();
+    await db.insert(pollOptions).values(p.options.map(text => ({ pollId: poll.id, text })));
+  }
 
-  // Articles
+  // Aktuelle Themen (Tagesschau Fokus)
   await db.insert(articles).values([
     {
-      title: "New Energy Policy Announced",
-      content: "The government has unveiled a new plan to transition to 80% renewable energy by 2030...",
+      title: "Auswirkungen von Trumps Politik auf Europa",
+      summary: "Zusammenfassung: Experten analysieren die möglichen Handelstarife und Sicherheitsimplikationen.",
+      content: "Nach der US-Wahl bereitet sich die EU auf neue Handelszölle vor. Die Sicherheitsallianz steht vor neuen Herausforderungen...",
       type: "news",
-      imageUrl: "https://images.unsplash.com/photo-1466611653911-95081537e5b7"
+      source: "Tagesschau",
+      imageUrl: "https://images.unsplash.com/photo-1580130632309-66dc19692994"
     },
     {
-      title: "Community Garden Project Berlin",
-      content: "Join us this weekend for the urban gardening initiative in Kreuzberg...",
+      title: "Neue Bildungsinitiative: Deine Stimme zählt",
+      summary: "Ein Projekt zur Stärkung der politischen Bildung an Schulen.",
+      content: "Schülerinnen und Schüler können sich ab sofort für Workshops anmelden, um mehr über demokratische Prozesse zu lernen...",
       type: "project",
-      imageUrl: "https://images.unsplash.com/photo-1591857177580-dc82b9e4e11c"
-    },
-    {
-      title: "Debate on Digital Infrastructure",
-      content: "Parliament is debating the new budget for digital infrastructure expansion in rural areas...",
-      type: "news",
-      imageUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c"
+      source: "VoiceUp",
+      imageUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7"
     }
   ]);
 
