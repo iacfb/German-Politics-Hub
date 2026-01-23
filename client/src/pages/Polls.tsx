@@ -25,7 +25,7 @@ export default function Polls() {
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
           <h1 className="text-4xl font-display font-bold mb-2">Meinungscheck</h1>
-          <p className="text-muted-foreground text-lg">Beteilige dich an aktuellen Umfragen und sieh Trends.</p>
+          <p className="text-muted-foreground text-lg">Beteilige dich an aktuellen Umfragen und sieh Trends (keine Anmeldung nötig).</p>
         </div>
 
         <div className="space-y-6">
