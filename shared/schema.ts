@@ -1,18 +1,124 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { users } from "./models/auth";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+export * from "./models/auth";
+export * from "./models/chat";
+
+// === QUIZZES ===
+export const quizzes = pgTable("quizzes", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // 'general', 'economic', 'social'
+  imageUrl: text("image_url"),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const quizQuestions = pgTable("quiz_questions", {
+  id: serial("id").primaryKey(),
+  quizId: integer("quiz_id").notNull(),
+  text: text("text").notNull(),
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+export const quizOptions = pgTable("quiz_options", {
+  id: serial("id").primaryKey(),
+  questionId: integer("question_id").notNull(),
+  text: text("text").notNull(),
+  partyAffiliation: text("party_affiliation").notNull(), // 'CDU', 'SPD', 'Grüne', 'FDP', 'AfD', 'Linke', 'BSW'
+  points: integer("points").default(1),
+});
+
+export const quizResults = pgTable("quiz_results", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(), // References auth.users.id
+  quizId: integer("quiz_id").notNull(),
+  matchedParty: text("matched_party").notNull(),
+  partyScores: jsonb("party_scores").notNull(), // { "SPD": 10, "CDU": 5 }
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const quizzesRelations = relations(quizzes, ({ many }) => ({
+  questions: many(quizQuestions),
+}));
+
+export const quizQuestionsRelations = relations(quizQuestions, ({ one, many }) => ({
+  quiz: one(quizzes, {
+    fields: [quizQuestions.quizId],
+    references: [quizzes.id],
+  }),
+  options: many(quizOptions),
+}));
+
+export const quizOptionsRelations = relations(quizOptions, ({ one }) => ({
+  question: one(quizQuestions, {
+    fields: [quizOptions.questionId],
+    references: [quizQuestions.id],
+  }),
+}));
+
+// === POLLS ===
+export const polls = pgTable("polls", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const pollOptions = pgTable("poll_options", {
+  id: serial("id").primaryKey(),
+  pollId: integer("poll_id").notNull(),
+  text: text("text").notNull(),
+});
+
+export const pollVotes = pgTable("poll_votes", {
+  id: serial("id").primaryKey(),
+  pollId: integer("poll_id").notNull(),
+  optionId: integer("option_id").notNull(),
+  userId: text("user_id").notNull(),
+});
+
+export const pollsRelations = relations(polls, ({ many }) => ({
+  options: many(pollOptions),
+  votes: many(pollVotes),
+}));
+
+export const pollOptionsRelations = relations(pollOptions, ({ one, many }) => ({
+  poll: one(polls, {
+    fields: [pollOptions.pollId],
+    references: [polls.id],
+  }),
+  votes: many(pollVotes),
+}));
+
+// === ARTICLES / PROJECTS ===
+export const articles = pgTable("articles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  type: text("type").notNull(), // 'news', 'project'
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// === SCHEMAS ===
+export const insertQuizResultSchema = createInsertSchema(quizResults).omit({ id: true, createdAt: true });
+export const insertPollVoteSchema = createInsertSchema(pollVotes).omit({ id: true });
+
+export type Quiz = typeof quizzes.$inferSelect;
+export type QuizQuestion = typeof quizQuestions.$inferSelect;
+export type QuizOption = typeof quizOptions.$inferSelect;
+export type QuizResult = typeof quizResults.$inferSelect;
+export type Poll = typeof polls.$inferSelect;
+export type PollOption = typeof pollOptions.$inferSelect;
+export type Article = typeof articles.$inferSelect;
+
+export type QuizWithQuestions = Quiz & {
+  questions: (QuizQuestion & { options: QuizOption[] })[];
+};
+
+export type PollWithDetails = Poll & {
+  options: (PollOption & { votes: number })[];
+  userVotedOptionId?: number;
+};

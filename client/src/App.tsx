@@ -5,12 +5,23 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 
+// Import Pages
+import Dashboard from "@/pages/Dashboard";
+import Quizzes from "@/pages/Quizzes";
+import QuizPlayer from "@/pages/QuizPlayer";
+import Polls from "@/pages/Polls";
+import News from "@/pages/News";
+import Chat from "@/pages/Chat";
+
 function Router() {
   return (
     <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
-      {/* Fallback to 404 */}
+      <Route path="/" component={Dashboard} />
+      <Route path="/quizzes" component={Quizzes} />
+      <Route path="/quizzes/:id" component={QuizPlayer} />
+      <Route path="/polls" component={Polls} />
+      <Route path="/news" component={News} />
+      <Route path="/chat" component={Chat} />
       <Route component={NotFound} />
     </Switch>
   );
