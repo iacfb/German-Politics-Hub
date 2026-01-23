@@ -92,6 +92,17 @@ export const pollOptionsRelations = relations(pollOptions, ({ one, many }) => ({
   votes: many(pollVotes),
 }));
 
+export const pollVotesRelations = relations(pollVotes, ({ one }) => ({
+  poll: one(polls, {
+    fields: [pollVotes.pollId],
+    references: [polls.id],
+  }),
+  option: one(pollOptions, {
+    fields: [pollVotes.optionId],
+    references: [pollOptions.id],
+  }),
+}));
+
 // === ARTICLES / PROJECTS (Aktuelle Themen) ===
 export const articles = pgTable("articles", {
   id: serial("id").primaryKey(),
