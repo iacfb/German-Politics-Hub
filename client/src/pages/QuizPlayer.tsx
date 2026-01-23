@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -23,7 +22,7 @@ export default function QuizPlayer() {
   const [result, setResult] = useState<any>(null);
 
   if (isLoading) return <Layout><div className="flex justify-center p-20"><Loader2 className="animate-spin" /></div></Layout>;
-  if (!quiz) return <Layout><div>Quiz not found</div></Layout>;
+  if (!quiz) return <Layout><div>Quiz nicht gefunden</div></Layout>;
 
   const questions = quiz.questions || [];
   const currentQuestion = questions[currentQuestionIdx];
@@ -42,9 +41,7 @@ export default function QuizPlayer() {
       try {
         const res = await submitQuiz.mutateAsync({ id, answers });
         setResult(res);
-      } catch (e) {
-        // Error handled in hook
-      }
+      } catch (e) {}
     } else {
       setCurrentQuestionIdx(prev => prev + 1);
     }
@@ -62,13 +59,13 @@ export default function QuizPlayer() {
             <CheckCircle2 className="w-12 h-12" />
           </motion.div>
           
-          <h1 className="text-4xl font-display font-bold">Result: {result.matchedParty}</h1>
+          <h1 className="text-4xl font-display font-bold">Ergebnis: {result.matchedParty}</h1>
           <p className="text-muted-foreground text-lg">
-            Based on your answers, your views align most closely with the {result.matchedParty}.
+            Basierend auf deinen Antworten stimmst du am meisten mit der Partei <strong>{result.matchedParty}</strong> überein.
           </p>
           
           <div className="grid gap-4 bg-card p-6 rounded-2xl border shadow-sm text-left">
-            <h3 className="font-bold mb-4">Party Alignment Breakdown</h3>
+            <h3 className="font-bold mb-4">Übereinstimmung nach Parteien</h3>
             {Object.entries(result.partyScores).map(([party, score]: [string, any]) => (
               <div key={party} className="space-y-1">
                 <div className="flex justify-between text-sm">
@@ -80,7 +77,7 @@ export default function QuizPlayer() {
             ))}
           </div>
 
-          <Button onClick={() => setLocation("/quizzes")} size="lg">Back to Quizzes</Button>
+          <Button onClick={() => setLocation("/quizzes")} size="lg">Zurück zur Übersicht</Button>
         </div>
       </Layout>
     );
@@ -91,7 +88,7 @@ export default function QuizPlayer() {
       <div className="max-w-2xl mx-auto py-8">
         <div className="mb-8 space-y-2">
           <div className="flex justify-between text-sm font-medium text-muted-foreground">
-            <span>Question {currentQuestionIdx + 1} of {questions.length}</span>
+            <span>Frage {currentQuestionIdx + 1} von {questions.length}</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -139,7 +136,7 @@ export default function QuizPlayer() {
                     className="w-full sm:w-auto"
                     size="lg"
                   >
-                    {isLastQuestion ? (submitQuiz.isPending ? "Calculating..." : "Submit Results") : "Next Question"}
+                    {isLastQuestion ? (submitQuiz.isPending ? "Berechne..." : "Ergebnis anzeigen") : "Nächste Frage"}
                     {!isLastQuestion && <ArrowRight className="w-4 h-4 ml-2" />}
                   </Button>
                 </div>

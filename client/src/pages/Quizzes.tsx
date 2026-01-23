@@ -15,21 +15,10 @@ export default function Quizzes() {
         <div className="space-y-6">
           <Skeleton className="h-12 w-64" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
+            {[1, 2].map((i) => (
               <Skeleton key={i} className="h-64 w-full rounded-2xl" />
             ))}
           </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="flex flex-col items-center justify-center h-96 text-center">
-          <h2 className="text-2xl font-bold text-destructive mb-2">Error Loading Quizzes</h2>
-          <p className="text-muted-foreground">Please try again later.</p>
         </div>
       </Layout>
     );
@@ -39,8 +28,8 @@ export default function Quizzes() {
     <Layout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-display font-bold mb-2">Quizzes</h1>
-          <p className="text-muted-foreground text-lg">Test your political knowledge and alignment.</p>
+          <h1 className="text-4xl font-display font-bold mb-2">Wahl-O-Mat</h1>
+          <p className="text-muted-foreground text-lg">Vergleiche deine Standpunkte mit den Programmen der Parteien.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -57,17 +46,17 @@ export default function Quizzes() {
               )}
               <CardHeader>
                 <div className="flex justify-between items-start gap-4">
-                  <Badge variant="outline" className="capitalize">{quiz.category}</Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {quiz.category === 'landtag2026' ? 'Landtagswahl 2026' : quiz.category}
+                  </Badge>
                 </div>
                 <CardTitle className="mt-2 text-xl">{quiz.title}</CardTitle>
                 <CardDescription className="line-clamp-2">{quiz.description}</CardDescription>
               </CardHeader>
-              <CardContent className="flex-1">
-                {/* Spacer or extra info */}
-              </CardContent>
+              <CardContent className="flex-1" />
               <CardFooter>
                 <Link href={`/quizzes/${quiz.id}`} className="w-full">
-                  <Button className="w-full">Start Quiz</Button>
+                  <Button className="w-full">Quiz starten</Button>
                 </Link>
               </CardFooter>
             </Card>

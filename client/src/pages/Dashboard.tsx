@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
-import { Vote, Newspaper, MessageSquareText, ChevronRight } from "lucide-react";
+import { Vote, Newspaper, MessageSquareText, ChevronRight, Info } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
@@ -37,96 +37,110 @@ export default function Dashboard() {
             Willkommen{user?.firstName ? `, ${user.firstName}` : ''}.
           </motion.h1>
           <motion.p variants={item} className="text-xl text-muted-foreground max-w-2xl">
-            Engage with German politics. Participate in polls, take quizzes to find your party match, and stay informed.
+            Beteilige dich an der deutschen Politik. Nimm an Umfragen teil, finde deine Partei im Wahl-O-Mat und bleib informiert.
           </motion.p>
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Quiz Card */}
+          {/* Wahl-O-Mat Card */}
           <motion.div variants={item} className="h-full">
             <Card className="h-full border-l-4 border-l-black hover:shadow-lg transition-all duration-300">
               <CardHeader>
                 <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center mb-4">
                   <Vote className="w-6 h-6 text-black" />
                 </div>
-                <CardTitle>Political Compass</CardTitle>
-                <CardDescription>Find out which party aligns with your values.</CardDescription>
+                <CardTitle>Wahl-O-Mat</CardTitle>
+                <CardDescription>Finde heraus, welche Partei am besten zu deinen Werten passt.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href="/quizzes">
                   <Button className="w-full bg-black hover:bg-black/80 text-white group">
-                    Start Quiz <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    Quiz starten <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Poll Card */}
+          {/* Meinungscheck Card */}
           <motion.div variants={item} className="h-full">
             <Card className="h-full border-l-4 border-l-[#DD0000] hover:shadow-lg transition-all duration-300">
               <CardHeader>
                 <div className="w-12 h-12 bg-[#DD0000]/10 rounded-xl flex items-center justify-center mb-4">
                   <Vote className="w-6 h-6 text-[#DD0000]" />
                 </div>
-                <CardTitle>Current Polls</CardTitle>
-                <CardDescription>Voice your opinion on pressing matters.</CardDescription>
+                <CardTitle>Meinungscheck</CardTitle>
+                <CardDescription>Gib deine Stimme zu aktuellen Themen ab.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href="/polls">
                   <Button className="w-full bg-[#DD0000] hover:bg-[#DD0000]/90 text-white group">
-                    Vote Now <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    Jetzt abstimmen <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* AI Chat Card */}
+          {/* CivicChat AI Card */}
           <motion.div variants={item} className="h-full">
             <Card className="h-full border-l-4 border-l-[#FFCC00] hover:shadow-lg transition-all duration-300">
               <CardHeader>
                 <div className="w-12 h-12 bg-[#FFCC00]/10 rounded-xl flex items-center justify-center mb-4">
                   <MessageSquareText className="w-6 h-6 text-[#D4AA00]" />
                 </div>
-                <CardTitle>Politik AI</CardTitle>
-                <CardDescription>Discuss political topics with our AI assistant.</CardDescription>
+                <CardTitle>CivicChat AI</CardTitle>
+                <CardDescription>Diskutiere politische Themen mit unserem KI-Assistenten.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href="/chat">
                   <Button className="w-full bg-[#FFCC00] hover:bg-[#FFCC00]/90 text-black group">
-                    Start Chat <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    Chat starten <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </CardContent>
             </Card>
           </motion.div>
 
-           {/* News Card - Spans full width on mobile, else fits grid */}
-           <motion.div variants={item} className="h-full lg:col-span-3">
+           {/* Aktuelle Themen Card */}
+           <motion.div variants={item} className="h-full lg:col-span-2">
             <Card className="h-full bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none shadow-xl">
               <div className="flex flex-col md:flex-row items-center">
                 <div className="flex-1 p-8">
                   <div className="flex items-center gap-2 text-white/60 mb-2">
                     <Newspaper className="w-5 h-5" />
-                    <span className="text-sm font-medium uppercase tracking-wider">Aktuelles</span>
+                    <span className="text-sm font-medium uppercase tracking-wider">Aktuelle Themen</span>
                   </div>
                   <h3 className="text-2xl md:text-3xl font-display font-bold mb-4">
-                    Stay informed with the latest political developments and projects.
+                    Bleib informiert über die neuesten politischen Entwicklungen und Projekte.
                   </h3>
                   <Link href="/news">
                     <Button variant="secondary" size="lg" className="group">
-                      Read Articles <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      Artikel lesen <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </div>
-                <div className="w-full md:w-1/3 h-48 md:h-auto bg-white/5 relative overflow-hidden">
-                   {/* Abstract graphic */}
-                   <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-transparent z-10" />
-                   {/* Using a pattern instead of an image for reliability */}
-                   <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                </div>
               </div>
+            </Card>
+          </motion.div>
+
+          {/* Über uns Card */}
+          <motion.div variants={item} className="h-full">
+            <Card className="h-full border-l-4 border-l-blue-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4">
+                  <Info className="w-6 h-6 text-blue-500" />
+                </div>
+                <CardTitle>Über uns</CardTitle>
+                <CardDescription>Erfahre mehr über die Mission von VoiceUp.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Link href="/about">
+                  <Button variant="outline" className="w-full group">
+                    Mehr erfahren <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </CardContent>
             </Card>
           </motion.div>
         </div>

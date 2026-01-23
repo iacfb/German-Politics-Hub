@@ -8,7 +8,8 @@ import {
   LogOut, 
   User,
   Menu,
-  X
+  X,
+  Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -22,10 +23,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/quizzes", label: "Quizzes", icon: Vote },
-    { href: "/polls", label: "Meinungsbild", icon: Vote }, // "Opinion Poll" in German context
-    { href: "/news", label: "Aktuelles", icon: Newspaper }, // "Current Events"
-    { href: "/chat", label: "Politik AI", icon: MessageSquareText },
+    { href: "/quizzes", label: "Wahl-O-Mat", icon: Vote },
+    { href: "/polls", label: "Meinungscheck", icon: Vote },
+    { href: "/news", label: "Aktuelle Themen", icon: Newspaper },
+    { href: "/chat", label: "CivicChat AI", icon: MessageSquareText },
+    { href: "/about", label: "Über uns", icon: Info },
   ];
 
   return (
@@ -35,7 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
         <div className="flex items-center gap-2">
            <div className="h-6 w-1 bg-gradient-to-b from-black via-[#DD0000] to-[#FFCC00] rounded-full" />
-           <span className="font-display font-bold text-xl tracking-tight">BundesApp</span>
+           <span className="font-display font-bold text-xl tracking-tight">VoiceUp</span>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X /> : <Menu />}
@@ -78,7 +80,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="h-8 w-1.5 bg-gradient-to-b from-black via-[#DD0000] to-[#FFCC00] rounded-full" />
-            <span className="font-display font-bold text-2xl tracking-tight">BundesApp</span>
+            <span className="font-display font-bold text-2xl tracking-tight">VoiceUp</span>
           </div>
 
           <nav className="space-y-2">
@@ -120,14 +122,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     onClick={() => logout()}
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    Abmelden
                   </Button>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">Log in to save results and vote.</p>
+                  <p className="text-sm text-muted-foreground">Melde dich an, um Ergebnisse zu speichern.</p>
                   <Button asChild className="w-full">
-                    <a href="/api/login">Login / Sign up</a>
+                    <a href="/api/login">Anmelden</a>
                   </Button>
                 </div>
               )}

@@ -32,7 +32,7 @@ export default function Chat() {
       const res = await fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'New Political Discussion' }),
+        body: JSON.stringify({ title: 'Neue politische Diskussion' }),
       });
       if (!res.ok) throw new Error('Failed to create');
       return await res.json();
@@ -43,25 +43,21 @@ export default function Chat() {
     }
   });
 
-  // Use our custom hook for the active conversation
   const { messages, isStreaming, error, sendMessage, loadHistory } = useChatStream(activeConversationId);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load history when switching conversations
   useEffect(() => {
     if (activeConversationId) {
       loadHistory();
     }
   }, [activeConversationId, loadHistory]);
 
-  // Set initial active conversation if exists
   useEffect(() => {
     if (conversations && conversations.length > 0 && !activeConversationId) {
       setActiveConversationId(conversations[0].id);
     }
   }, [conversations, activeConversationId]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -72,11 +68,9 @@ export default function Chat() {
     e.preventDefault();
     if (!input.trim() || isStreaming) return;
     
-    // If no conversation exists, create one first then send
     if (!activeConversationId) {
       createConversation.mutate(undefined, {
-        onSuccess: (newConvo) => {
-          // Wait a tick for state update
+        onSuccess: () => {
           setTimeout(() => sendMessage(input), 100);
           setInput("");
         }
@@ -92,12 +86,12 @@ export default function Chat() {
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
           <Bot className="w-16 h-16 text-muted-foreground" />
-          <h2 className="text-2xl font-bold">Login Required</h2>
+          <h2 className="text-2xl font-bold">Anmeldung erforderlich</h2>
           <p className="text-muted-foreground max-w-md">
-            Please log in to chat with our political AI assistant. It helps us keep the conversation civil and personalized.
+            Bitte melde dich an, um mit CivicChat AI zu diskutieren.
           </p>
           <Button asChild>
-            <a href="/api/login">Log In to Chat</a>
+            <a href="/api/login">Anmelden zum Chatten</a>
           </Button>
         </div>
       </Layout>
@@ -107,7 +101,6 @@ export default function Chat() {
   return (
     <Layout>
       <div className="flex h-[calc(100vh-100px)] gap-6">
-        {/* Sidebar - Conversation List */}
         <div className="w-64 hidden md:flex flex-col gap-4">
           <Button 
             onClick={() => createConversation.mutate()} 
@@ -115,7 +108,7 @@ export default function Chat() {
             variant="outline"
             disabled={createConversation.isPending}
           >
-            <Plus className="w-4 h-4 mr-2" /> New Chat
+            <Plus className="w-4 h-4 mr-2" /> Neuer Chat
           </Button>
           
           <ScrollArea className="flex-1">
@@ -138,13 +131,19 @@ export default function Chat() {
           </ScrollArea>
         </div>
 
-        {/* Chat Area */}
         <Card className="flex-1 flex flex-col shadow-xl overflow-hidden border-border/50">
+          <div className="p-4 border-b bg-muted/30">
+            <h2 className="font-bold flex items-center gap-2">
+              <Bot className="w-5 h-5 text-primary" />
+              CivicChat AI
+            </h2>
+            <p className="text-xs text-muted-foreground">Transparente Quellenangaben inklusive.</p>
+          </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {messages.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
                 <Bot className="w-12 h-12 mb-4" />
-                <p>Start a conversation about German politics.</p>
+                <p>Starte ein Gespräch über deutsche Politik.</p>
               </div>
             )}
             
@@ -188,7 +187,7 @@ export default function Chat() {
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about political topics..."
+                placeholder="Frage nach politischen Themen..."
                 className="flex-1"
                 disabled={isStreaming}
               />

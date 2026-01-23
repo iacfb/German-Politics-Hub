@@ -2,7 +2,6 @@ import { Layout } from "@/components/Layout";
 import { usePolls, useVotePoll } from "@/hooks/use-polls";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -25,8 +24,8 @@ export default function Polls() {
     <Layout>
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
-          <h1 className="text-4xl font-display font-bold mb-2">Meinungsbild</h1>
-          <p className="text-muted-foreground text-lg">Participate in current political opinion polls.</p>
+          <h1 className="text-4xl font-display font-bold mb-2">Meinungscheck</h1>
+          <p className="text-muted-foreground text-lg">Beteilige dich an aktuellen Umfragen und sieh Trends.</p>
         </div>
 
         <div className="space-y-6">
@@ -35,7 +34,7 @@ export default function Polls() {
             const totalVotes = poll.options.reduce((acc: number, opt: any) => acc + opt.votes, 0);
 
             return (
-              <Card key={poll.id} className="overflow-hidden">
+              <Card key={poll.id} className="overflow-hidden border-border/50">
                 <CardHeader className="bg-muted/30">
                   <CardTitle>{poll.question}</CardTitle>
                   <CardDescription>{poll.description}</CardDescription>
@@ -50,7 +49,7 @@ export default function Polls() {
                           <div key={option.id} className="space-y-1">
                             <div className="flex justify-between text-sm">
                               <span className={isUserChoice ? "font-bold text-primary" : ""}>
-                                {option.text} {isUserChoice && "(You)"}
+                                {option.text} {isUserChoice && "(Deine Wahl)"}
                               </span>
                               <span className="font-mono text-muted-foreground">{percent}%</span>
                             </div>
@@ -62,12 +61,12 @@ export default function Polls() {
                                 className={`h-full ${isUserChoice ? "bg-primary" : "bg-muted-foreground/30"}`}
                               />
                             </div>
-                            <p className="text-xs text-muted-foreground text-right">{option.votes} votes</p>
+                            <p className="text-xs text-muted-foreground text-right">{option.votes} Stimmen</p>
                           </div>
                         );
                       })}
                       <p className="text-center text-sm text-muted-foreground pt-2">
-                        Total votes: {totalVotes}
+                        Gesamtstimmen: {totalVotes}
                       </p>
                     </div>
                   ) : (
@@ -89,7 +88,7 @@ export default function Polls() {
                           onClick={() => voteMutation.mutate({ pollId: poll.id, optionId: selectedOptions[poll.id] })}
                           disabled={!selectedOptions[poll.id] || voteMutation.isPending}
                         >
-                          {voteMutation.isPending ? "Submitting..." : "Vote"}
+                          {voteMutation.isPending ? "Wird gesendet..." : "Abstimmen"}
                         </Button>
                       </div>
                     </div>

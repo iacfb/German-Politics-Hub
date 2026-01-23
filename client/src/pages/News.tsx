@@ -1,9 +1,10 @@
 import { Layout } from "@/components/Layout";
 import { useArticles } from "@/hooks/use-articles";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 export default function News() {
   const { data: articles, isLoading } = useArticles();
@@ -11,7 +12,7 @@ export default function News() {
   if (isLoading) return (
     <Layout>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-80 w-full rounded-2xl" />)}
+        {[1, 2, 3].map(i => <Skeleton key={i} className="h-80 w-full rounded-2xl" />)}
       </div>
     </Layout>
   );
@@ -20,13 +21,13 @@ export default function News() {
     <Layout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-display font-bold mb-2">Aktuelles</h1>
-          <p className="text-muted-foreground text-lg">News and participatory projects.</p>
+          <h1 className="text-4xl font-display font-bold mb-2">Aktuelle Themen</h1>
+          <p className="text-muted-foreground text-lg">Hintergründe, Analysen und Möglichkeiten zur Partizipation.</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {articles?.map((article) => (
-            <Card key={article.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-border/50">
+            <Card key={article.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-border/50 flex flex-col">
               {article.imageUrl && (
                 <div className="h-48 overflow-hidden">
                   <img 
@@ -39,18 +40,23 @@ export default function News() {
               <CardHeader>
                 <div className="flex justify-between items-center mb-2">
                   <Badge variant={article.type === 'project' ? "default" : "secondary"}>
-                    {article.type}
+                    {article.type === 'project' ? 'Projekt' : 'Nachricht'}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {format(new Date(article.createdAt), 'MMM d, yyyy')}
+                    {article.source || 'VoiceUp'} • {format(new Date(article.createdAt), 'dd. MMM yyyy', { locale: de })}
                   </span>
                 </div>
                 <CardTitle className="leading-tight group-hover:text-primary transition-colors">
                   {article.title}
                 </CardTitle>
+                {article.summary && (
+                  <CardDescription className="text-primary font-medium mt-2">
+                    {article.summary}
+                  </CardDescription>
+                )}
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-sm line-clamp-3">
+              <CardContent className="flex-1">
+                <p className="text-muted-foreground text-sm line-clamp-4">
                   {article.content}
                 </p>
               </CardContent>
