@@ -92,8 +92,7 @@ export class DatabaseStorage implements IStorage {
 
   async hasVoted(pollId: number, userId: string): Promise<boolean> {
     const [vote] = await db.select().from(pollVotes)
-      .where(eq(pollVotes.pollId, pollId))
-      .where(eq(pollVotes.userId, userId));
+      .where(sql`${pollVotes.pollId} = ${pollId} AND ${pollVotes.userId} = ${userId}`);
     return !!vote;
   }
 
