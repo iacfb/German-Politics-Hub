@@ -104,38 +104,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="mt-auto p-6 border-t bg-muted/20">
-          {!isLoading && (
-            <>
-              {isAuthenticated ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border-2 border-background shadow-sm">
-                      <User className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{user?.firstName || 'User'}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 hover:border-destructive/20"
-                    onClick={() => logout()}
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Abmelden
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">Melde dich an, um Ergebnisse zu speichern.</p>
-                  <Button asChild className="w-full">
-                    <a href="/api/login">Anmelden</a>
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
         </div>
       </aside>
 

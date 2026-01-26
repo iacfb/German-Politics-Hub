@@ -109,13 +109,13 @@ export default function Dashboard() {
                 <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4">
                   <MessageSquareText className="w-6 h-6 text-purple-500" />
                 </div>
-                <CardTitle>Mit Politikern Debattieren</CardTitle>
+                <CardTitle>Debattieren</CardTitle>
                 <CardDescription>Tritt in den direkten Dialog mit KI-Repräsentanten bekannter Politiker.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href="/debate">
                   <Button className="w-full bg-purple-500 hover:bg-purple-600 text-white group">
-                    Debatte starten <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    Debatte beitreten <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </CardContent>

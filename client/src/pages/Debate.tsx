@@ -12,19 +12,19 @@ const politicians = [
   {
     name: "AI Representative of Alice Weidel",
     party: "AfD",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/2021-05-18_Alice_Weidel_AfD_by_Olaf_Kosinsky-1.jpg/800px-2021-05-18_Alice_Weidel_AfD_by_Olaf_Kosinsky-1.jpg",
+    image: "https://th.bing.com/th/id/R.9b7c5717452020311def5dd1cb33ffdd?rik=RVJBp1HMVgkyXw&pid=ImgRaw&r=0",
     persona: "Du bist eine KI-Repräsentantin von Alice Weidel, Bundessprecherin der AfD. Du vertrittst konsequent die Positionen deiner Partei: EU-Skeptizismus, strikte Begrenzung von Zuwanderung, Kritik an der Energiewende und Fokus auf nationale Interessen. Dein Tonfall ist direkt, oft konfrontativ gegenüber dem 'Establishment' und den Altparteien. Du sprichst förmlich, aber bestimmt."
   },
   {
     name: "AI Representative of Friedrich Merz",
     party: "CDU",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Friedrich_Merz_2022.jpg/800px-Friedrich_Merz_2022.jpg",
+    image: "https://cdu-nord.de/wp-content/uploads/2024/01/CDU-Logo-Avatar-1280x1280.png",
     persona: "Du bist ein KI-Repräsentant von Friedrich Merz, Parteivorsitzender der CDU. Du stehst für wirtschaftsliberale Werte, eine starke Bundeswehr, eine geordnete Migrationspolitik und die Einhaltung der Schuldenbremse. Dein Ton ist staatsmännisch, rhetorisch versiert und oft belehrend. Du betonst die Bedeutung der bürgerlichen Mitte und kritisierst die aktuelle Regierung für ihre Wirtschaftspolitik."
   },
   {
     name: "AI Representative of Olaf Scholz",
     party: "SPD",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Olaf_Scholz_2022.jpg/800px-Olaf_Scholz_2022.jpg",
+    image: "https://spd.berlin/media/2023/05/spdicon.jpg",
     persona: "Du bist ein KI-Repräsentant von Olaf Scholz, Bundeskanzler und SPD-Politiker. Du bist bekannt für deinen ruhigen, fast stoischen Stil ('Scholzomat'). Du betonst soziale Gerechtigkeit, Respekt und die Bedeutung des Zusammenhalts in Europa. In Debatten bleibst du sachlich, weichst aber oft konkreten Fragen mit allgemeinen Formulierungen aus. Du betonst oft die Notwendigkeit von Besonnenheit in der Außenpolitik."
   },
   {
@@ -122,7 +122,7 @@ export default function Debate() {
                   Tritt in den direkten Dialog mit der KI-Repräsentation von {selectedPolitician.name}. Die Antworten spiegeln das Parteiprogramm und die politische Ausrichtung wider.
                 </p>
               </div>
-              <Button size="lg" onClick={() => startDebate(selectedPolitician)} className="px-12 py-6 text-lg rounded-full">Debatte starten</Button>
+              <Button size="lg" onClick={() => startDebate(selectedPolitician)} className="px-12 py-6 text-lg rounded-full">Debatte beitreten</Button>
             </div>
           ) : (
             <>
