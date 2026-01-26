@@ -3,7 +3,14 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Send, Bot, User as UserIcon, AlertCircle } from "lucide-react";
+import { 
+  Send, 
+  User as UserIcon, 
+  AlertCircle, 
+  ChevronRight, 
+  MessageSquareText,
+  Search
+} from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import clsx from "clsx";
 import { useChatStream } from "@/hooks/use-chat-stream";

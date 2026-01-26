@@ -38,8 +38,9 @@ export function registerChatRoutes(app: Express): void {
   // Create new conversation
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
-      const { title } = req.body;
-      const conversation = await chatStorage.createConversation(title || "New Chat");
+      const { title, systemPrompt } = req.body;
+      const userId = (req.user as any)?.id || (req.session as any).guestId || `guest_${req.ip}`;
+      const conversation = await chatStorage.createConversation(title || "New Chat", userId, systemPrompt);
       res.status(201).json(conversation);
     } catch (error) {
       console.error("Error creating conversation:", error);
@@ -65,15 +66,32 @@ export function registerChatRoutes(app: Express): void {
       const conversationId = parseInt(req.params.id);
       const { content } = req.body;
 
+      // Get conversation to check for system prompt
+      const conversation = await chatStorage.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
       // Save user message
       await chatStorage.createMessage(conversationId, "user", content);
 
       // Get conversation history for context
       const messages = await chatStorage.getMessagesByConversation(conversationId);
-      const chatMessages = messages.map((m) => ({
+      
+      const chatMessages: any[] = [];
+      
+      // Add system prompt if it exists
+      if (conversation.systemPrompt) {
+        chatMessages.push({
+          role: "system",
+          content: conversation.systemPrompt
+        });
+      }
+
+      chatMessages.push(...messages.map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
-      }));
+      })));
 
       // Set up SSE
       res.setHeader("Content-Type", "text/event-stream");
@@ -82,7 +100,7 @@ export function registerChatRoutes(app: Express): void {
 
       // Stream response from OpenAI
       const stream = await openai.chat.completions.create({
-        model: "gpt-5.1",
+        model: "gpt-4o",
         messages: chatMessages,
         stream: true,
         max_completion_tokens: 2048,
