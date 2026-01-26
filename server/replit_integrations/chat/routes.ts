@@ -39,7 +39,7 @@ export function registerChatRoutes(app: Express): void {
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       const { title, systemPrompt } = req.body;
-      const userId = (req.user as any)?.id || (req.session as any).guestId || `guest_${req.ip}`;
+      const userId = String((req.user as any)?.id || (req.session as any).guestId || `guest_${req.ip}`);
       const conversation = await chatStorage.createConversation(title || "New Chat", userId, systemPrompt);
       res.status(201).json(conversation);
     } catch (error) {
@@ -84,13 +84,13 @@ export function registerChatRoutes(app: Express): void {
       if (conversation.systemPrompt) {
         chatMessages.push({
           role: "system",
-          content: conversation.systemPrompt
+          content: String(conversation.systemPrompt)
         });
       }
 
       chatMessages.push(...messages.map((m) => ({
         role: m.role as "user" | "assistant",
-        content: m.content,
+        content: String(m.content),
       })));
 
       // Set up SSE
