@@ -112,7 +112,7 @@ export async function registerRoutes(
 
   // Re-seed with German data if empty or forced
   const existingQuizzes = await storage.getQuizzes();
-  if (existingQuizzes.length <= 1 || true) { // Forced re-seed to ensure all requested data is present
+  if (existingQuizzes.length <= 1 || true) { // Force re-seed to ensure all requested data is present
     await seedDatabase();
   }
 
@@ -247,23 +247,31 @@ async function seedDatabase() {
     await db.insert(pollOptions).values(p.options.map(text => ({ pollId: poll.id, text })));
   }
 
-  // Aktuelle Themen (Tagesschau Fokus)
+  // Aktuelle Themen (Echte Artikel)
   await db.insert(articles).values([
     {
-      title: "Auswirkungen von Trumps Politik auf Europa",
-      summary: "Zusammenfassung: Experten analysieren die möglichen Handelstarife und Sicherheitsimplikationen.",
-      content: "Nach der US-Wahl bereitet sich die EU auf neue Handelszölle vor. Die Sicherheitsallianz steht vor neuen Herausforderungen...",
+      title: "Wintereinbruch in BW: Chaos auf den Straßen",
+      summary: "Zusammenfassung: Heftiger Schneefall sorgt in Baden-Württemberg für zahlreiche Unfälle und Straßensperrungen.",
+      content: "Insbesondere rund um Stuttgart und Ulm kam es zu erheblichen Behinderungen. Die A8 war für mehrere Stunden gesperrt. Polizei und Räumfahrzeuge sind im Dauereinsatz, um die Lage zu stabilisieren.",
       type: "news",
       source: "Tagesschau",
-      imageUrl: "https://images.unsplash.com/photo-1580130632309-66dc19692994"
+      imageUrl: "https://images.tagesschau.de/image/125b1014-4593-4309-98a9-9f863a1c5e24/AAABm_nTSVo/AAABmyZEl4A/16x7/swr-autos-und-lastwagen-stehen-auf-der-autobahn-8-zwischen-kirchheim-teck-ost-und-muehlhausen-wegen-heftigen-schneefalls-bildete-sich-ein-langer-stau-100.jpg"
     },
     {
-      title: "Neue Bildungsinitiative: Deine Stimme zählt",
-      summary: "Ein Projekt zur Stärkung der politischen Bildung an Schulen.",
-      content: "Schülerinnen und Schüler können sich ab sofort für Workshops anmelden, um mehr über demokratische Prozesse zu lernen...",
-      type: "project",
-      source: "VoiceUp",
-      imageUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7"
+      title: "Trumps Grenzschutz-Chef sorgt für Kritik",
+      summary: "Zusammenfassung: Gregory Bovino weist Schuld nach tödlichen Schüssen in Minneapolis von sich.",
+      content: "Nach den tödlichen Schüssen auf einen 37-Jährigen in Minneapolis hat Bovino die Beamten in Schutz genommen. Er polarisiert mit martialischem Auftreten und direkter Rhetorik, während Demokraten Aufklärung fordern.",
+      type: "news",
+      source: "WELT",
+      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1UZPLh.img"
+    },
+    {
+      title: "Zoll-Wende für deutsche Autobauer in Indien",
+      summary: "Zusammenfassung: Indien plant deutliche Senkung der Importzölle auf EU-Fahrzeuge.",
+      content: "Nach Informationen von Reuters könnten die Zölle von 110 auf 40 Prozent sinken. Dies wäre ein strategischer Durchbruch für Volkswagen, BMW und Mercedes-Benz im drittgrößten Automarkt der Welt.",
+      type: "news",
+      source: "Berliner Zeitung",
+      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1UWKJj.img"
     }
   ]);
 
