@@ -1,0 +1,24 @@
+ändere das wahl-o-mat für die landtagswahlen um. Zurzeit gibt es folgenden Bug: das Wahl-O-Mat kann nicht genau bestimmen welcher partei man zugehört und es werden niedrige wahrscheinlichkeiten zB CDU 4% angezeigt. ich möchte, dass folgende änderungen im wahl-o-mat durchgenommen werden: 1. ich gebe dir für das wahl-o-mat landtagswahlen exakt die fragen mit dneen du dann die prozente für jede partei ausrechnest. es gibt nur die antwortmöglichkeiten stimme zu, neutral, stimme nicht zu. es gibt insgesamt 38 fragen. 1. Die Landesregierung soll Unternehmen unterstützen, die in Baden-Württemberg Rüstungsgüter herstellen. 2. Die Pflicht zur Errichtung einer Solaranlage bei vollständigen Dachsanierungen soll entfallen.
+3. Die Betreuung in Kindertageseinrichtungen soll für alle Kinder beitragsfrei sein.
+
+Beim Ausbau der Verkehrsinfrastruktur soll die Schiene Vorrang vor der Straße haben. 5. Die Mietpreisbremse in baden-württembergischen Städten und Gemeinden soll abgeschafft werden.
+
+Baden-Württemberg soll sich für ein Ende der Einreisekontrollen an den Grenzen zu Frankreich und der Schweiz einsetzen.
+
+Mehr Krankenhäuser in Baden-Württemberg sollen in öffentlicher Hand sein.
+
+Die Videoüberwachung öffentlicher Plätze soll ausgeweitet werden.
+
+Baden-Württemberg soll nur noch die ökologische Landwirtschaft fördern.
+
+Das Land soll Gedenkstätten, die an Verbrechen des Nationalsozialismus erinnern, stärker finanziell unterstützen.
+
+Das mehrgliedrige Schulsystem (Werkrealschule/Hauptschule, Realschule, Gemeinschaftsschule, Gymnasium) soll erhalten bleiben.
+
+Aufträge des Landes sollen weiterhin nur an Unternehmen vergeben werden, die Tariflöhne zahlen.
+
+Alle Erstaufnahmeeinrichtungen des Landes sollen psychosoziale Beratung für Asylsuchende anbieten.
+
+Baden-Württemberg soll sich dafür einsetzen, dass die Sanktionen gegen Russland gelockert werden.
+
+Schreibweisen, die geschlechtliche Vielfalt mit Sonderzeichen (z. B. Sternchen, Unterstrich oder Doppelpunkt) sprachlich abbilden, sollen an Schulen verwendet werden dürfen.

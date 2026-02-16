@@ -112,6 +112,7 @@ export const articles = pgTable("articles", {
   type: text("type").notNull(), // 'news', 'project'
   imageUrl: text("image_url"),
   source: text("source"), // z.B. Tagesschau
+  sourceUrl: text("source_url"), // Original link
   createdAt: timestamp("created_at").defaultNow(),
 });
 

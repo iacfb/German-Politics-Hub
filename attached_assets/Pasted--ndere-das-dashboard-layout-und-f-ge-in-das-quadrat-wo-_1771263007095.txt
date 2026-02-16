@@ -1,0 +1,50 @@
+Ändere das dashboard layout: und füge in das quadrat, wo debattieren steht, folgendes bild ein: https://www.zdf.de/assets/tv-runde-bundestagswahlkampf-100~3840x2160?cb=1739751166268 und ausserdem soll dieses feld blau und nicht lila sein, wohingegen die kategorie über uns lila sein soll. benenne wahl-o-mat um, zu Wahlkompass und füge dort ein: https://copilot.microsoft.com/th/id/BCO.0f3c19a1-dd3d-42ec-9420-939270a672b4.png und füge in meinungscheck ein: https://rp-online.de/imgs/32/1/1/3/3/0/9/6/1/5/tok_c1c2775d38855e2a4ecbb1b1fdb21440/w1200_h630_x3680_y2456_imago79731732h-49228d2156a8bd31.jpg und und in das ins hintergrund form von CivicChat AI auf dashboard füge ein: https://copilot.microsoft.com/th/id/BCO.f7c1dd81-6633-4af1-9343-2277af0bde7c.png 
+
+
+ich möchte dass wir auch das wahlomat quiz bisschen ändern. ändere das wahl-o-mat für die landtagswahlen um. Zurzeit gibt es folgenden Bug: das Wahl-O-Mat kann nicht genau bestimmen welcher partei man zugehört und es werden niedrige wahrscheinlichkeiten zB CDU 4% angezeigt. ich möchte, dass folgende änderungen im wahl-o-mat durchgenommen werden: 1. ich gebe dir für das wahl-o-mat landtagswahlen exakt die fragen mit dneen du dann die prozente für jede partei ausrechnest. es gibt nur die antwortmöglichkeiten stimme zu, neutral, stimme nicht zu. es gibt insgesamt 38 fragen, bitte formuliere jede frage mini-minimal um, sodass sie exakt die gleiche bedeutung hat unnd nur etwas anders formuliert ist. 1. Die Landesregierung soll Unternehmen unterstützen, die in Baden-Württemberg Rüstungsgüter herstellen. 2. Die Pflicht zur Errichtung einer Solaranlage bei vollständigen Dachsanierungen soll entfallen.
+3. Die Betreuung in Kindertageseinrichtungen soll für alle Kinder beitragsfrei sein.
+4. Beim Ausbau der Verkehrsinfrastruktur soll die Schiene Vorrang vor der Straße haben. 5. Die Mietpreisbremse in baden-württembergischen Städten und Gemeinden soll abgeschafft werden.
+6.Baden-Württemberg soll sich für ein Ende der Einreisekontrollen an den Grenzen zu Frankreich und der Schweiz einsetzen.
+7.Mehr Krankenhäuser in Baden-Württemberg sollen in öffentlicher Hand sein.
+8.Die Videoüberwachung öffentlicher Plätze soll ausgeweitet werden.
+9.Baden-Württemberg soll nur noch die ökologische Landwirtschaft fördern.
+10.Das Land soll Gedenkstätten, die an Verbrechen des Nationalsozialismus erinnern, stärker finanziell unterstützen.
+11.Das mehrgliedrige Schulsystem (Werkrealschule/Hauptschule, Realschule, Gemeinschaftsschule, Gymnasium) soll erhalten bleiben.
+12.Aufträge des Landes sollen weiterhin nur an Unternehmen vergeben werden, die Tariflöhne zahlen.
+13.Alle Erstaufnahmeeinrichtungen des Landes sollen psychosoziale Beratung für Asylsuchende anbieten.
+14.Baden-Württemberg soll sich dafür einsetzen, dass die Sanktionen gegen Russland gelockert werden.
+15.Schreibweisen, die geschlechtliche Vielfalt mit Sonderzeichen (z. B. Sternchen, Unterstrich oder Doppelpunkt) sprachlich abbilden, sollen an Schulen verwendet werden dürfen.
+16. Die Anzahl der Abgeordneten im baden-württembergischen Landtag soll verringert werden.
+17. Das Land soll Projekte gegen Rechtsextremismus weiterhin fördern.
+18. Baden-Württemberg soll sich dafür einsetzen, dass die Steuer auf sehr hohe Erbschaften erhöht wird.
+19. Beim Wechsel auf die weiterführende Schule soll die Empfehlung der Grundschule verbindlich sein.
+20. Ein größerer Anteil der Fläche Baden-Württembergs soll für den Bau von Windkraftanlagen genutzt werden können.
+21. Führungspositionen in Landesbehörden sollen zu gleichen Teilen mit Frauen und Männern besetzt werden.
+22. In großen Betrieben soll zur Kontrolle der Nutztierhaltung Videoüberwachung angeordnet werden können.
+23. Baden-Württemberg soll sich dafür einsetzen, dass mehr Flüge vom Stuttgarter Flughafen angeboten werden.
+24. An baden-württembergischen Schulen soll weiterhin konfessioneller Religionsunterricht angeboten werden.
+25. Länger leerstehende Mietwohnungen sollen ihren Eigentümerinnen und Eigentümern konsequent entzogen und vermietet werden.
+26. Die Polizei in Baden-Württemberg soll flächendeckend mit Elektroschockpistolen („Tasern“) ausgestattet werden.
+27. In Baden-Württemberg soll der öffentliche Personennahverkehr (ÖPNV) für die Nutzerinnen und Nutzer kostenlos sein.
+28. An Schulen in Baden-Württemberg soll vorrangig das traditionelle Familienbild (Mutter, Vater, Kinder) vermittelt werden.
+29. Für jede neu bebaute Fläche soll eine gleich große Fläche begrünt werden müssen.
+30. Kommunale Kulturangebote sollen von Baden-Württemberg stärker finanziell gefördert werden.
+31. Baden-Württemberg soll sicherstellen, dass mehr Kliniken Schwangerschaftsabbrüche anbieten.
+32. Die Hochschulen des Landes sollen stärker mit privaten Unternehmen zusammenarbeiten.
+33. Der Schutz vor Diskriminierung durch Landesbehörden soll durch ein Gesetz gestärkt werden.
+34. Asylbewerberinnen und -bewerber sollen bis zur Entscheidung über ihren Antrag ausschließlich in Sammelunterkünften untergebracht werden.
+35. Baden-Württemberg soll sich dafür einsetzen, dass auch nach 2035 noch Pkw mit fossilem Verbrennungsmotor neu zugelassen werden dürfen.
+36. Die Bundeswehr soll weiterhin Veranstaltungen an Schulen in Baden-Württemberg durchführen dürfen.
+37. Das Land soll verstärkt ausländische Fachkräfte anwerben.
+38. Baden-Württemberg soll am Ziel der Klimaneutralität festhalten.
+füge dann noch hinz ein ranking danach wo man zwischen, keine ahn ung 30 politischen themen in einer liste, für sich die drei wichtigsten aussucht
+zu all diesen antworten die danngegebne werden erörtere zunächst was mit welcher partei übereinstimmt und dann werte prozentzahlen aus,  es muss sehr präzise sein. es sollen mehrere parteien beinhaltet sein, also auch: CDU, GRÜNE, SPD, FDP, AfD, DIE LINKE, Freie Wähler, ÖDP, Die PARTEI, Volt, Tierschutzpartei, Klimaliste BW, dieBasis, Piratenpartei, Familien‑Partei, LKR (Liberal‑Konservative Reformer), Bündnis C, V‑Partei³, Partei für Gesundheitsforschung, Partei der Humanisten, Bündnis Deutschland, du kannst auch unwichtige parteien, über die keine informationen gegeben sind, auslassen
+
+verlängere zudem wahlomat junior auf 25 fragen. 
+
+Füge der kategorie meinungscheck noch 10 weitere brisante fragen hinzu, zB ob es berechtigt ist, dass die AfD als rechtsextrem eingestuft wird. oder ob die AfD abgeschafft werden soll und solche sachen, die interessant sind. 
+
+in die kategorie aktuelle themen soll auch eine änderung vorgenommen werden: unzwar soll in einem doomscrollmäßigen systemdie artikel sein und man kann durchscrollen zum nächsten und drafklickem, damit der ganze text sichtbar wird. Außerdem sollen die ursprünglichen quellen auch verlinkt sein, das man auf die website gehen kann, aber die artikel sollen eben zusammengefasst sein und in eigenen worten. hier sind ein paar die du hinzufügen sollst: 1. https://www.msn.com/de-de/nachrichten/other/vorsto%C3%9F-der-spd-tiktok-und-instagram-erst-von-14-jahren-an/ar-AA1WsSpu?ocid=msedgntphdr&cvid=69934a77ac6f4c0bb1bdfe8263936c49&cvpid=6a6f984264aa4686c2d183b15a3a7902&ei=8 2. https://www.msn.com/de-de/nachrichten/other/us-au%C3%9Fenminister-erster-ungarn-besuch-seit-sieben-jahren/ar-AA1WsUWB?ocid=msedgntphdr&cvid=69934a77ac6f4c0bb1bdfe8263936c49&cvpid=6a6f984264aa4686c2d183b15a3a7902&ei=16 3. https://www.msn.com/de-de/nachrichten/politik/prozess-gegen-deutschland-harald-martensteins-pl%C3%A4doyer-gegen-ein-afd-verbot-im-wortlaut/ar-AA1WrGvF?ocid=msedgntphdr&cvid=69934a77ac6f4c0bb1bdfe8263936c49&cvpid=6a6f984264aa4686c2d183b15a3a7902&ei=19 4. https://www.msn.com/de-de/nachrichten/politik/afd-politiker-besch%C3%A4ftigen-familienmitglieder-warum-sie-oft-keine-andere-m%C3%B6glichkeit-sehen/ar-AA1WsMQ2?ocid=msedgntphdr&cvid=69934a77ac6f4c0bb1bdfe8263936c49&cvpid=6a6f984264aa4686c2d183b15a3a7902&ei=24 5. https://www.msn.com/de-de/finanzen/top-stories/baden-w%C3%BCrttemberg-was-eine-neue-regierung-in-stuttgart-erwartet/ar-AA1WsnaR?ocid=msedgntphdr&cvid=69934a77ac6f4c0bb1bdfe8263936c49&cvpid=6a6f984264aa4686c2d183b15a3a7902&ei=28 
+
+
+
