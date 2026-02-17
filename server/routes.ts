@@ -151,7 +151,7 @@ async function seedDatabase() {
       title: "Wahlkompass: Landtagswahl BW 2026",
       description: "Der offizielle Wahlkompass für die Landtagswahl in Baden-Württemberg 2026. 38 Fragen zu den wichtigsten Landesthemen.",
       category: "landtag2026",
-      imageUrl: "https://copilot.microsoft.com/th/id/BCO.0f3c19a1-dd3d-42ec-9420-939270a672b4.png",
+      imageUrl: "https://www.planet-wissen.de/sendungen/sendung-parteien-kugelschreiber-100~_v-HDready.png",
       questions: [
         { text: "Die Landesregierung soll Unternehmen unterstützen, die in Baden-Württemberg Rüstungsgüter herstellen.", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme zu", party: "FDP" }, { text: "Stimme nicht zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "Linke" }] },
         { text: "Die Pflicht zur Errichtung einer Solaranlage bei vollständigen Dachsanierungen soll entfallen.", options: [{ text: "Stimme zu", party: "AfD" }, { text: "Stimme zu", party: "FDP" }, { text: "Stimme nicht zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "SPD" }] },
@@ -191,6 +191,42 @@ async function seedDatabase() {
         { text: "Die Bundeswehr soll weiterhin Veranstaltungen an Schulen in Baden-Württemberg durchführen dürfen.", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme zu", party: "FDP" }, { text: "Stimme nicht zu", party: "Linke" }] },
         { text: "Das Land soll verstärkt ausländische Fachkräfte anwerben.", options: [{ text: "Stimme zu", party: "SPD" }, { text: "Stimme zu", party: "FDP" }, { text: "Stimme nicht zu", party: "AfD" }] },
         { text: "Baden-Württemberg soll am Ziel der Klimaneutralität festhalten.", options: [{ text: "Stimme zu", party: "Grüne" }, { text: "Stimme zu", party: "SPD" }, { text: "Stimme nicht zu", party: "AfD" }] }
+      ]
+    },
+    {
+      title: "Wahlkompass: Kurz & Knapp",
+      description: "Die wichtigsten Themen in 10 schnellen Fragen.",
+      category: "quick",
+      imageUrl: "https://tse4.mm.bing.net/th/id/OIP.NkMi21UpsXnB4RiAB_wsLQHaEK?cb=defcachec2&rs=1&pid=ImgDetMain&o=7&rm=3",
+      questions: [
+        { text: "Sollte Deutschland mehr Geld für die Bundeswehr ausgeben?", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme nicht zu", party: "Linke" }, { text: "Neutral", party: "SPD" }] },
+        { text: "Sollte es ein Tempolimit auf Autobahnen geben?", options: [{ text: "Stimme zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "FDP" }, { text: "Stimme nicht zu", party: "CDU" }] },
+        { text: "Sollte die Rente mit 67 bleiben?", options: [{ text: "Stimme zu", party: "FDP" }, { text: "Stimme nicht zu", party: "Linke" }, { text: "Stimme nicht zu", party: "SPD" }] },
+        { text: "Sollte Fleisch teurer werden (Fleischsteuer)?", options: [{ text: "Stimme zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "AfD" }, { text: "Stimme nicht zu", party: "CDU" }] },
+        { text: "Sollte Marihuana legal bleiben?", options: [{ text: "Stimme zu", party: "FDP" }, { text: "Stimme zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "CDU" }] },
+        { text: "Sollte die Schuldenbremse gelockert werden?", options: [{ text: "Stimme zu", party: "SPD" }, { text: "Stimme zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "FDP" }] },
+        { text: "Sollte es mehr Videoüberwachung geben?", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme zu", party: "AfD" }, { text: "Stimme nicht zu", party: "Linke" }] },
+        { text: "Sollte Kohlekraft schneller abgeschaltet werden?", options: [{ text: "Stimme zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "CDU" }, { text: "Stimme nicht zu", party: "AfD" }] },
+        { text: "Sollte das Bürgergeld erhöht werden?", options: [{ text: "Stimme zu", party: "Linke" }, { text: "Stimme zu", party: "SPD" }, { text: "Stimme nicht zu", party: "CDU" }] },
+        { text: "Sollte Deutschland mehr Fachkräfte aus dem Ausland holen?", options: [{ text: "Stimme zu", party: "FDP" }, { text: "Stimme zu", party: "SPD" }, { text: "Stimme nicht zu", party: "AfD" }] }
+      ]
+    },
+    {
+      title: "Wahlkompass: Allgemein",
+      description: "Allgemeine politische Orientierung (30 Fragen).",
+      category: "general",
+      imageUrl: "https://images.unsplash.com/photo-1540910419892-f0c74b0e8966",
+      questions: [
+        { text: "Die Steuern für Reiche sollen erhöht werden.", options: [{ text: "Stimme zu", party: "Linke" }, { text: "Stimme zu", party: "SPD" }, { text: "Stimme nicht zu", party: "FDP" }] },
+        { text: "Atomkraft soll wieder genutzt werden.", options: [{ text: "Stimme zu", party: "AfD" }, { text: "Stimme zu", party: "CDU" }, { text: "Stimme nicht zu", party: "Grüne" }] },
+        { text: "Der Mindestlohn soll auf 15 Euro steigen.", options: [{ text: "Stimme zu", party: "SPD" }, { text: "Stimme zu", party: "Linke" }, { text: "Stimme nicht zu", party: "FDP" }] },
+        { text: "Es soll eine PKW-Maut auf Autobahnen geben.", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme nicht zu", party: "Grüne" }, { text: "Neutral", party: "SPD" }] },
+        { text: "Kirchensteuern sollen abgeschafft werden.", options: [{ text: "Stimme zu", party: "FDP" }, { text: "Stimme zu", party: "Linke" }, { text: "Stimme nicht zu", party: "CDU" }] },
+        { text: "Es soll ein bedingungsloses Grundeinkommen geben.", options: [{ text: "Stimme zu", party: "Linke" }, { text: "Neutral", party: "Grüne" }, { text: "Stimme nicht zu", party: "CDU" }] },
+        { text: "Die Bundeswehr soll im Inneren eingesetzt werden dürfen.", options: [{ text: "Stimme zu", party: "AfD" }, { text: "Stimme zu", party: "CDU" }, { text: "Stimme nicht zu", party: "Linke" }] },
+        { text: "Flugreisen sollen höher besteuert werden.", options: [{ text: "Stimme zu", party: "Grüne" }, { text: "Stimme zu", party: "SPD" }, { text: "Stimme nicht zu", party: "AfD" }] },
+        { text: "Das Bargeld soll erhalten bleiben.", options: [{ text: "Stimme zu", party: "AfD" }, { text: "Stimme zu", party: "FDP" }, { text: "Neutral", party: "CDU" }] },
+        { text: "Es soll eine allgemeine Dienstpflicht geben.", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme zu", party: "AfD" }, { text: "Stimme nicht zu", party: "FDP" }] }
       ]
     },
     {
@@ -306,22 +342,49 @@ async function seedDatabase() {
   // Aktuelle Themen (Echte Artikel)
   await db.insert(articles).values([
     {
-      title: "Was hat Trump in Deutschland vor?",
-      summary: "Zusammenfassung: Die US-Regierung unter Trump plant massive Zolländerungen, die besonders die deutsche Automobilindustrie treffen könnten.",
-      content: "Nach seiner Wahl hat Donald Trump angekündigt, den Grenzschutz drastisch zu verschärfen und Importzölle auf europäische Waren zu erheben. Deutsche Autobauer wie Volkswagen und BMW bereiten sich auf schwierige Zeiten vor. Experten warnen vor einem Handelskrieg, der die deutsche Wirtschaft empfindlich treffen könnte.",
+      title: "Vorstoß der SPD: TikTok und Instagram erst ab 14 Jahren",
+      summary: "Die SPD fordert strengere Altersgrenzen für soziale Medien, um Kinder und Jugendliche besser vor schädlichen Inhalten zu schützen.",
+      content: "Ein neuer Vorstoß der SPD-Bundestagsfraktion sorgt für Diskussionen: Die Partei fordert, dass Plattformen wie TikTok und Instagram erst ab einem Alter von 14 Jahren genutzt werden dürfen. Ziel ist es, die psychische Gesundheit junger Menschen zu schützen und Cybermobbing sowie die Verbreitung von Fake News einzudämmen.",
       type: "news",
-      source: "MSN / WELT",
-      sourceUrl: "https://www.msn.com/de-de/finanzen/top-stories/was-hat-trump-jetzt-in-deutschland-vor-ein-plan-wie-eine-bedrohung/ar-AA1UZX9S",
-      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1UZPLh.img"
+      source: "MSN / SPD",
+      sourceUrl: "https://www.msn.com/de-de/nachrichten/other/vorsto%C3%9F-der-spd-tiktok-und-instagram-erst-von-14-jahren-an/ar-AA1WsSpu",
+      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsSpu.img"
     },
     {
-      title: "Israelischer Botschafter warnt vor AfD-Erfolg",
-      summary: "Zusammenfassung: Ron Prosor äußert sich besorgt über den Aufstieg der AfD und deren Verhältnis zum Rechtsextremismus.",
-      content: "Der israelische Botschafter in Deutschland, Ron Prosor, hat in einem Interview vor der AfD gewarnt. Er sieht in der Partei eine Gefahr für die demokratische Kultur und weist auf rechtsextreme Tendenzen hin. Die Einstufung einiger Landesverbände als gesichert rechtsextrem durch den Verfassungsschutz sei ein deutliches Signal.",
+      title: "US-Außenminister Blinken besucht Ungarn",
+      summary: "Erster Besuch seit sieben Jahren: Blinken reist nach Budapest, um über die transatlantische Zusammenarbeit zu sprechen.",
+      content: "US-Außenminister Antony Blinken besucht erstmals seit sieben Jahren wieder Ungarn. In Budapest stehen Gespräche über die NATO-Zusammenarbeit, die Unterstützung der Ukraine und die Rechtsstaatlichkeit in Ungarn auf der Agenda. Der Besuch gilt als wichtiges Signal für die Beziehungen zwischen den USA und der Regierung von Viktor Orbán.",
       type: "news",
-      source: "Zeit Online",
-      sourceUrl: "https://www.zeit.de/politik/deutschland/2025-02/afd-israel-botschafter-ron-prosor-warnung",
-      imageUrl: "https://images.unsplash.com/photo-1529108190281-9a4f620bc2d8"
+      source: "MSN / AFP",
+      sourceUrl: "https://www.msn.com/de-de/nachrichten/other/us-au%C3%9Fenminister-erster-ungarn-besuch-seit-sieben-jahren/ar-AA1WsUWB",
+      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsUWB.img"
+    },
+    {
+      title: "Prozess gegen Deutschland: Harald Martensteins Plädoyer gegen ein AfD-Verbot",
+      summary: "Kolumnist Harald Martenstein warnt vor den Folgen eines Verbotsverfahrens und plädiert für die politische Auseinandersetzung.",
+      content: "In seinem ausführlichen Plädoyer setzt sich Harald Martenstein kritisch mit der Forderung nach einem AfD-Verbot auseinander. Er argumentiert, dass ein solches Verfahren die Polarisierung in der Gesellschaft weiter verschärfen könnte und die demokratische Auseinandersetzung nicht ersetzen kann. Martenstein warnt davor, die Wähler der Partei durch ein Verbot weiter zu radikalisieren.",
+      type: "news",
+      source: "MSN / WELT",
+      sourceUrl: "https://www.msn.com/de-de/nachrichten/politik/prozess-gegen-deutschland-harald-martensteins-pl%C3%A4doyer-gegen-ein-afd-verbot-im-wortlaut/ar-AA1WrGvF",
+      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WrGvF.img"
+    },
+    {
+      title: "AfD-Politiker beschäftigen Familienmitglieder",
+      summary: "Kritik an der Personalpolitik: Warum einige AfD-Abgeordnete Verwandte in ihren Büros einstellen.",
+      content: "Berichte über die Beschäftigung von Familienmitgliedern durch AfD-Politiker sorgen für Kritik. Während die Partei oft Nepotismus bei anderen Parteien anprangert, sehen sich einige ihrer Abgeordneten gezwungen, auf Verwandte zurückzugreifen, da es schwierig sei, loyale und qualifizierte Mitarbeiter auf dem freien Markt zu finden, die keine beruflichen Nachteile durch eine Tätigkeit für die AfD befürchten.",
+      type: "news",
+      source: "MSN / Politik",
+      sourceUrl: "https://www.msn.com/de-de/nachrichten/politik/afd-politiker-besch%C3%A4ftigen-familienmitglieder-warum-sie-oft-keine-andere-m%C3%B6glichkeit-sehen/ar-AA1WsMQ2",
+      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsMQ2.img"
+    },
+    {
+      title: "Baden-Württemberg: Was eine neue Regierung in Stuttgart erwartet",
+      summary: "Herausforderungen für die nächste Landesregierung: Wirtschaft, Bildung und Infrastruktur stehen im Fokus.",
+      content: "Vor der kommenden Landtagswahl in Baden-Württemberg rücken die großen Herausforderungen für Stuttgart in den Mittelpunkt. Eine neue Regierung wird sich mit der Transformation der Automobilindustrie, dem Lehrermangel und dem maroden Zustand vieler Landesstraßen auseinandersetzen müssen. Experten betonen die Notwendigkeit schneller Investitionen und Reformen.",
+      type: "news",
+      source: "MSN / Finanzen",
+      sourceUrl: "https://www.msn.com/de-de/finanzen/top-stories/baden-w%C3%BCrttemberg-was-eine-neue-regierung-in-stuttgart-erwartet/ar-AA1WsnaR",
+      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsnaR.img"
     }
   ]);
 
