@@ -5,6 +5,7 @@ import { chatStorage } from "./storage";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export function registerChatRoutes(app: Express): void {
+
   // Get all conversations
   app.get("/api/conversations", async (req: Request, res: Response) => {
     try {
@@ -36,8 +37,14 @@ export function registerChatRoutes(app: Express): void {
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       const { title, systemPrompt } = req.body;
-      const userId = String((req.user as any)?.id || (req.session as any).guestId || `guest_${req.ip}`);
-      const conversation = await chatStorage.createConversation(title || "New Chat", userId, systemPrompt);
+      const userId = `guest_${req.ip}`;
+
+      const conversation = await chatStorage.createConversation(
+        title || "Neue politische Diskussion",
+        userId,
+        systemPrompt
+      );
+
       res.status(201).json(conversation);
     } catch (error) {
       console.error("Error creating conversation:", error);
@@ -57,13 +64,12 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  // Send message and get AI response (streaming)
+  // Send message + stream AI response
   app.post("/api/conversations/:id/messages", async (req: Request, res: Response) => {
     try {
       const conversationId = parseInt(req.params.id);
       const { content } = req.body;
 
-      // Get conversation to check for system prompt
       const conversation = await chatStorage.getConversation(conversationId);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });
@@ -72,12 +78,11 @@ export function registerChatRoutes(app: Express): void {
       // Save user message
       await chatStorage.createMessage(conversationId, "user", content);
 
-      // Get conversation history for context
+      // Build message history
       const messages = await chatStorage.getMessagesByConversation(conversationId);
-      
+
       const chatMessages: any[] = [];
-      
-      // Add system prompt if it exists
+
       if (conversation.systemPrompt) {
         chatMessages.push({
           role: "system",
@@ -85,17 +90,19 @@ export function registerChatRoutes(app: Express): void {
         });
       }
 
-      chatMessages.push(...messages.map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: String(m.content),
-      })));
+      chatMessages.push(
+        ...messages.map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: String(m.content),
+        }))
+      );
 
-      // Set up SSE
+      // SSE headers
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      // Stream response from OpenAI (new API)
+      // Groq streaming
       const stream = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: chatMessages,
@@ -105,29 +112,30 @@ export function registerChatRoutes(app: Express): void {
       let fullResponse = "";
 
       for await (const chunk of stream) {
-        const content = chunk.choices?.[0]?.delta?.content || "";
-        if (content) {
-          fullResponse += content;
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+        const delta = chunk.choices?.[0]?.delta?.content || "";
+        if (delta) {
+          fullResponse += delta;
+          res.write(`data: ${JSON.stringify({ content: delta })}\n\n`);
         }
       }
-
 
       // Save assistant message
       await chatStorage.createMessage(conversationId, "assistant", fullResponse);
 
       res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
       res.end();
+
     } catch (error) {
       console.error("Error sending message:", error);
-      // Check if headers already sent (SSE streaming started)
-      if (res.headersSent) {
+
+      if (!res.headersSent) {
+        return res.status(500).json({ error: "Failed to send message" });
+      }
+
+      try {
         res.write(`data: ${JSON.stringify({ error: "Failed to send message" })}\n\n`);
         res.end();
-      } else {
-        res.status(500).json({ error: "Failed to send message" });
-      }
+      } catch (_) {}
     }
   });
 }
-
