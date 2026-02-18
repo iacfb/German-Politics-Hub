@@ -98,23 +98,22 @@ export function registerChatRoutes(app: Express): void {
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      // Stream response from OpenAI
-      const stream = await openai.chat.completions.create({
+      // Stream response from OpenAI (new API)
+      const stream = await openai.responses.stream({
         model: "gpt-4o",
-        messages: chatMessages,
-        stream: true,
-        max_completion_tokens: 2048,
+        input: chatMessages,
       });
 
       let fullResponse = "";
 
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
+      for await (const event of stream) {
+        const content = event.output_text || "";
         if (content) {
           fullResponse += content;
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
         }
       }
+
 
       // Save assistant message
       await chatStorage.createMessage(conversationId, "assistant", fullResponse);
