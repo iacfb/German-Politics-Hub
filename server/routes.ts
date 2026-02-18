@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
-import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+//import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerChatRoutes } from "./replit_integrations/chat";
 import { db } from "./db";
 import { quizzes, quizQuestions, quizOptions, polls, pollOptions, articles } from "@shared/schema";
@@ -13,21 +13,24 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   // Auth Setup
-  await setupAuth(app);
-  registerAuthRoutes(app);
+ // await setupAuth(app);
+//  registerAuthRoutes(app);
 
   // Chat Routes - Updated for CivicChat AI
   registerChatRoutes(app);
 
   // Allow guest chat
   app.get("/api/conversations", async (req, res) => {
-    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+//    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+    const userId = `guest_${req.ip}`;
+
     const data = await storage.getConversations(userId);
     res.json(data);
   });
 
   app.post("/api/conversations", async (req, res) => {
-    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+//    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+    const userId = `guest_${req.ip}`;
     const { title, systemPrompt } = req.body;
     const convo = await storage.createConversation(userId, title || "Neue politische Diskussion", systemPrompt);
     res.json(convo);
@@ -48,7 +51,8 @@ export async function registerRoutes(
   app.post(api.quizzes.submit.path, async (req, res) => {
     const quizId = Number(req.params.id);
     const { answers } = req.body;
-    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+  //  const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+    const userId = `guest_${req.ip}`;
 
     const quiz = await storage.getQuiz(quizId);
     if (!quiz) return res.status(404).json({ message: "Quiz nicht gefunden" });
@@ -100,7 +104,9 @@ export async function registerRoutes(
 
   // === Polls (Meinungscheck) ===
   app.get(api.polls.list.path, async (req, res) => {
-    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+  //  const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+    const userId = `guest_${req.ip}`;
+
     const data = await storage.getPolls(userId);
     res.json(data);
   });
@@ -108,7 +114,9 @@ export async function registerRoutes(
   app.post(api.polls.vote.path, async (req, res) => {
     const pollId = Number(req.params.id);
     const { optionId } = req.body;
-    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+   // const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
+    const userId = `guest_${req.ip}`;
+
 
     const hasVoted = await storage.hasVoted(pollId, userId);
     if (hasVoted) {
