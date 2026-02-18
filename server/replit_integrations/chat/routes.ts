@@ -1,11 +1,8 @@
 import type { Express, Request, Response } from "express";
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 import { chatStorage } from "./storage";
 
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export function registerChatRoutes(app: Express): void {
   // Get all conversations
@@ -99,15 +96,16 @@ export function registerChatRoutes(app: Express): void {
       res.setHeader("Connection", "keep-alive");
 
       // Stream response from OpenAI (new API)
-      const stream = await openai.responses.stream({
-        model: "gpt-4o",
-        input: chatMessages,
+      const stream = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: chatMessages,
+        stream: true
       });
 
       let fullResponse = "";
 
-      for await (const event of stream) {
-        const content = event.output_text || "";
+      for await (const chunk of stream) {
+        const content = chunk.choices?.[0]?.delta?.content || "";
         if (content) {
           fullResponse += content;
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
