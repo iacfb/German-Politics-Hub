@@ -134,10 +134,10 @@ export async function registerRoutes(
   });
 
   // Re-seed with German data if empty or forced
-  const existingQuizzes = await storage.getQuizzes();
-  if (existingQuizzes.length <= 1) { // Force re-seed to ensure all requested data is present
-    await seedDatabase();
-  }
+ // const existingQuizzes = await storage.getQuizzes();
+  //if (existingQuizzes.length <= 1) { // Force re-seed to ensure all requested data is present
+  //  await seedDatabase();
+  //}
 
   return httpServer;
 }
