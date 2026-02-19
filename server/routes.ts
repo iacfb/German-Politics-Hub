@@ -139,6 +139,18 @@ export async function registerRoutes(
   //  await seedDatabase();
   //}
 
+  // === Admin: Seed Database ===
+  app.post("/admin/seed", async (req, res) => {
+    try {
+      await seedDatabase();
+      res.json({ ok: true, message: "Database seeded successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ ok: false, error: String(err) });
+    }
+  });
+
+
   return httpServer;
 }
 
