@@ -3,24 +3,24 @@ import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 export const polls = pgTable("polls", {
   id: serial("id").primaryKey(),
   question: text("question").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
-export const pollOptions = pgTable("poll_options", {
+export const pollOptions = pgTable("pollOptions", {
   id: serial("id").primaryKey(),
-  pollId: integer("poll_id").references(() => polls.id).notNull(),
+  pollId: integer("pollId").references(() => polls.id).notNull(),
   text: text("text").notNull(),
 });
 
-export const pollVotes = pgTable("poll_votes", {
+export const pollVotes = pgTable("pollVotes", {
   id: serial("id").primaryKey(),
-  pollId: integer("poll_id").references(() => polls.id).notNull(),
-  optionId: integer("option_id").references(() => pollOptions.id).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  pollId: integer("pollId").references(() => polls.id).notNull(),
+  optionId: integer("optionId").references(() => pollOptions.id).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
-export const chatMessages = pgTable("chat_messages", {
+export const chatMessages = pgTable("chatMessages", {
   id: serial("id").primaryKey(),
   message: text("message").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

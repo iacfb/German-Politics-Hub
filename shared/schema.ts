@@ -13,30 +13,30 @@ export const quizzes = pgTable("quizzes", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   category: text("category").notNull(), // 'allgemein', 'wirtschaft', 'soziales', 'landtag2026'
-  imageUrl: text("image_url"),
+  imageUrl: text("imageUrl"),
 });
 
-export const quizQuestions = pgTable("quiz_questions", {
+export const quizQuestions = pgTable("quizQuestions", {
   id: serial("id").primaryKey(),
-  quizId: integer("quiz_id").notNull(),
+  quizId: integer("quizId").notNull(),
   text: text("text").notNull(),
 });
 
-export const quizOptions = pgTable("quizoptions", {
+export const quizOptions = pgTable("quizOptions", {
   id: serial("id").primaryKey(),
-  questionId: integer("question_id").notNull(),
+  questionId: integer("questionId").notNull(),
   text: text("text").notNull(),
-  partyAffiliation: text("party_affiliation").notNull(), // 'CDU', 'SPD', 'Grüne', 'FDP', 'AfD', 'Linke', 'BSW'
+  partyAffiliation: text("partyAffiliation").notNull(), // 'CDU', 'SPD', 'Grüne', 'FDP', 'AfD', 'Linke', 'BSW'
   points: integer("points").default(1),
 });
 
-export const quizResults = pgTable("quiz_results", {
+export const quizResults = pgTable("quizResults", {
   id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  quizId: integer("quiz_id").notNull(),
-  matchedParty: text("matched_party").notNull(),
-  partyScores: jsonb("party_scores").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  userId: text("userId").notNull(),
+  quizId: integer("quizId").notNull(),
+  matchedParty: text("matchedParty").notNull(),
+  partyScores: jsonb("partyScores").notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
 export const quizzesRelations = relations(quizzes, ({ many }) => ({
@@ -63,20 +63,20 @@ export const polls = pgTable("polls", {
   id: serial("id").primaryKey(),
   question: text("question").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
-export const pollOptions = pgTable("poll_options", {
+export const pollOptions = pgTable("pollOptions", {
   id: serial("id").primaryKey(),
-  pollId: integer("poll_id").notNull(),
+  pollId: integer("pollId").notNull(),
   text: text("text").notNull(),
 });
 
-export const pollVotes = pgTable("poll_votes", {
+export const pollVotes = pgTable("pollVotes", {
   id: serial("id").primaryKey(),
-  pollId: integer("poll_id").notNull(),
-  optionId: integer("option_id").notNull(),
-  userId: text("user_id").notNull(),
+  pollId: integer("pollId").notNull(),
+  optionId: integer("optionId").notNull(),
+  userId: text("userId").notNull(),
 });
 
 export const pollsRelations = relations(polls, ({ many }) => ({
@@ -110,10 +110,10 @@ export const articles = pgTable("articles", {
   summary: text("summary"), // Zusammenfassung für Tagesschau-Inhalte
   content: text("content").notNull(),
   type: text("type").notNull(), // 'news', 'project'
-  imageUrl: text("image_url"),
+  imageUrl: text("imageUrl"),
   source: text("source"), // z.B. Tagesschau
-  sourceUrl: text("source_url"), // Original link
-  createdAt: timestamp("created_at").defaultNow(),
+  sourceUrl: text("sourceUrl"), // Original link
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
 // === SCHEMAS ===

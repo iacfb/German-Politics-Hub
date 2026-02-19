@@ -91,7 +91,7 @@ export function registerAudioRoutes(app: Express): void {
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      res.write(`data: ${JSON.stringify({ type: "user_transcript", data: userTranscript })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "userTranscript", data: userTranscript })}\n\n`);
 
       // 6. Stream audio response from gpt-audio
       const stream = await openai.chat.completions.create({

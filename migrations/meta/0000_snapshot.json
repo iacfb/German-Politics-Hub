@@ -4,8 +4,8 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.chat_messages": {
-      "name": "chat_messages",
+    "public.chatMessages": {
+      "name": "chatMessages",
       "schema": "",
       "columns": {
         "id": {
@@ -20,8 +20,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -36,8 +36,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.poll_options": {
-      "name": "poll_options",
+
+    "public.pollOptions": {
+      "name": "pollOptions",
       "schema": "",
       "columns": {
         "id": {
@@ -46,8 +47,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "poll_id": {
-          "name": "poll_id",
+        "pollId": {
+          "name": "pollId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -61,16 +62,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "poll_options_poll_id_polls_id_fk": {
-          "name": "poll_options_poll_id_polls_id_fk",
-          "tableFrom": "poll_options",
+        "pollOptions_pollId_polls_id_fk": {
+          "name": "pollOptions_pollId_polls_id_fk",
+          "tableFrom": "pollOptions",
           "tableTo": "polls",
-          "columnsFrom": [
-            "poll_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pollId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -81,8 +78,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.poll_votes": {
-      "name": "poll_votes",
+
+    "public.pollVotes": {
+      "name": "pollVotes",
       "schema": "",
       "columns": {
         "id": {
@@ -91,20 +89,20 @@
           "primaryKey": true,
           "notNull": true
         },
-        "poll_id": {
-          "name": "poll_id",
+        "pollId": {
+          "name": "pollId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "option_id": {
-          "name": "option_id",
+        "optionId": {
+          "name": "optionId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -113,29 +111,21 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "poll_votes_poll_id_polls_id_fk": {
-          "name": "poll_votes_poll_id_polls_id_fk",
-          "tableFrom": "poll_votes",
+        "pollVotes_pollId_polls_id_fk": {
+          "name": "pollVotes_pollId_polls_id_fk",
+          "tableFrom": "pollVotes",
           "tableTo": "polls",
-          "columnsFrom": [
-            "poll_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pollId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "poll_votes_option_id_poll_options_id_fk": {
-          "name": "poll_votes_option_id_poll_options_id_fk",
-          "tableFrom": "poll_votes",
-          "tableTo": "poll_options",
-          "columnsFrom": [
-            "option_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+        "pollVotes_optionId_pollOptions_id_fk": {
+          "name": "pollVotes_optionId_pollOptions_id_fk",
+          "tableFrom": "pollVotes",
+          "tableTo": "pollOptions",
+          "columnsFrom": ["optionId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -146,6 +136,7 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+
     "public.polls": {
       "name": "polls",
       "schema": "",
@@ -162,8 +153,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
