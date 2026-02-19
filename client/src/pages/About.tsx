@@ -18,7 +18,7 @@ export default function About() {
             </p>
             
             <p className="text-lg leading-relaxed">
-              Unsere Plattform vereint fünf zentrale Bausteine, die zusammen ein neues Netzwerk politischer Teilhabe bilden. Unter <strong>Aktuelle Themen & Partizipation</strong> erklären wir politische Entwicklungen verständlich und zeigen konkrete Möglichkeiten, wie man sich einbringen kann. Das <strong>Politik-Quiz</strong> hilft dabei, die eigene Haltung besser einzuordnen und politische Identität bewusster zu reflektieren. Mit dem <strong>KI-Dialogsystem</strong> gibt’s einen neutralen, niedrigschwelligen Raum für Gespräche über politische Fragen – perfekt, um Gedanken zu sortieren, Perspektiven zu entdecken und Wissen zu vertiefen. In <strong>Umfragen & Trends</strong> sammeln wir anonym Meinungen, machen Stimmungen sichtbar und zeigen, wie vielfältig politische Sichtweisen wirklich sind. Ergänzend gibt es Lern- und Orientierungsfunktionen, die Begriffe erklären, Zusammenhänge aufzeigen und den Einstieg in komplizierte Themen erleichtern.
+              Unsere Plattform vereint fünf zentrale Bausteine, die zusammen ein neues Netzwerk politischer Teilhabe bilden. Unter <strong>Aktuelle Themen & Partizipation</strong> erklären wir politische Entwicklungen verständlich und zeigen konkrete Möglichkeiten, wie man sich einbringen kann. Das <strong>Politik-Quiz</strong> hilft dabei, die eigene Haltung besser einzuordnen und politische Identität bewusster zu reflektieren. Mit dem <strong>KI-Dialogsystem</strong> gibt’s einen neutralen, niedrigschwelligen Raum für Gespräche über politische Fragen – perfekt, um Gedanken zu sortieren, Perspektiven zu entdecken und Wissen zu vertiefen. In <strong>Umfragen & Trends</strong> sammeln wir anonym Meinungen, machen Stimmungen sichtbar und zeigen, wie vielfältig politische Sichtweisen wirklich sind. Ergänzend gibt es Lern- und Orientierungsfunktionen, die Begriffe erklären, Zusammenhänge aufzeigen und den Einstieg in komplizierte Themen erleichtern. 
             </p>
 
             <div className="bg-muted/30 p-8 rounded-2xl border my-8">
@@ -30,6 +30,7 @@ export default function About() {
             </div>
           </div>
         </section>
+        Kontakt: <a href="mailto:asin.celik@proton.me">asin.celik@proton.me</a>
       </motion.div>
     </Layout>
   );
