@@ -150,6 +150,87 @@ export async function registerRoutes(
     }
   });
 
+  // === Admin: Create Tables (for Render PostgreSQL) ===
+  app.post("/admin/init-db", async (req, res) => {
+    try {
+      // Quizzes
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizzes (
+          id SERIAL PRIMARY KEY,
+          title TEXT,
+          description TEXT,
+          category TEXT,
+          imageUrl TEXT,
+          createdAt TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizQuestions (
+          id SERIAL PRIMARY KEY,
+          quizId INTEGER REFERENCES quizzes(id),
+          text TEXT
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizOptions (
+          id SERIAL PRIMARY KEY,
+          questionId INTEGER REFERENCES quizQuestions(id),
+          text TEXT,
+          partyAffiliation TEXT
+        );
+      `);
+
+      // Polls
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS polls (
+          id SERIAL PRIMARY KEY,
+          question TEXT,
+          createdAt TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS pollOptions (
+          id SERIAL PRIMARY KEY,
+          pollId INTEGER REFERENCES polls(id),
+          text TEXT
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS pollVotes (
+          id SERIAL PRIMARY KEY,
+          pollId INTEGER REFERENCES polls(id),
+          optionId INTEGER REFERENCES pollOptions(id),
+          userId TEXT
+        );
+      `);
+
+      // Articles
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS articles (
+          id SERIAL PRIMARY KEY,
+          title TEXT,
+          summary TEXT,
+          content TEXT,
+          type TEXT,
+          source TEXT,
+          sourceUrl TEXT,
+          imageUrl TEXT,
+          createdAt TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      res.json({ ok: true, message: "Tables created successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ ok: false, error: String(err) });
+    }
+  });
+
+
 
   return httpServer;
 }
