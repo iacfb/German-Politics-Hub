@@ -2,7 +2,14 @@ import type { Express, Request, Response } from "express";
 import Groq from "groq-sdk";
 import { chatStorage } from "./storage";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+function getGroqClient() {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY is not set");
+  }
+  return new Groq({ apiKey });
+}
+
 
 export function registerChatRoutes(app: Express): void {
 
@@ -103,7 +110,9 @@ export function registerChatRoutes(app: Express): void {
       res.setHeader("Connection", "keep-alive");
 
       // Groq streaming
-      const stream = await groq.chat.completions.create({
+        const groq = getGroqClient();
+
+        const stream = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: chatMessages,
         stream: true
