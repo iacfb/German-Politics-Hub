@@ -153,7 +153,6 @@ export async function registerRoutes(
   // === Admin: Create Tables (for Render PostgreSQL) ===
   app.post("/admin/init-db", async (req, res) => {
     try {
-      // Quizzes
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS quizzes (
           id SERIAL PRIMARY KEY,
@@ -166,7 +165,7 @@ export async function registerRoutes(
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS quizQuestions (
+        CREATE TABLE IF NOT EXISTS quizquestions (
           id SERIAL PRIMARY KEY,
           quizId INTEGER REFERENCES quizzes(id),
           text TEXT
@@ -174,15 +173,14 @@ export async function registerRoutes(
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS quizOptions (
+        CREATE TABLE IF NOT EXISTS quizoptions (
           id SERIAL PRIMARY KEY,
-          questionId INTEGER REFERENCES quizQuestions(id),
+          questionId INTEGER REFERENCES quizquestions(id),
           text TEXT,
           partyAffiliation TEXT
         );
       `);
 
-      // Polls
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS polls (
           id SERIAL PRIMARY KEY,
@@ -192,7 +190,7 @@ export async function registerRoutes(
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS pollOptions (
+        CREATE TABLE IF NOT EXISTS polloptions (
           id SERIAL PRIMARY KEY,
           pollId INTEGER REFERENCES polls(id),
           text TEXT
@@ -200,15 +198,14 @@ export async function registerRoutes(
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS pollVotes (
+        CREATE TABLE IF NOT EXISTS pollvotes (
           id SERIAL PRIMARY KEY,
           pollId INTEGER REFERENCES polls(id),
-          optionId INTEGER REFERENCES pollOptions(id),
+          optionId INTEGER REFERENCES polloptions(id),
           userId TEXT
         );
       `);
 
-      // Articles
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS articles (
           id SERIAL PRIMARY KEY,
@@ -223,12 +220,13 @@ export async function registerRoutes(
         );
       `);
 
-      res.json({ ok: true, message: "Tables created successfully" });
+      res.json({ ok: true, message: "Tables created correctly" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ ok: false, error: String(err) });
     }
   });
+
 
 
 
