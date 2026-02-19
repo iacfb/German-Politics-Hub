@@ -22,7 +22,7 @@ export const quizQuestions = pgTable("quiz_questions", {
   text: text("text").notNull(),
 });
 
-export const quizOptions = pgTable("quiz_options", {
+export const quizOptions = pgTable("quizoptions", {
   id: serial("id").primaryKey(),
   questionId: integer("question_id").notNull(),
   text: text("text").notNull(),
