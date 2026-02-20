@@ -24,3 +24,11 @@ export const chatMessages = pgTable("chatMessages", {
   message: text("message").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+export const quizoptions = pgTable("quizoptions", {
+  id: serial("id").primaryKey(),
+  questionId: integer("questionId").notNull().references(() => quizquestions.id),
+  text: text("text").notNull(),
+  points: integer("points").notNull(),   // ← HIER
+});
+
