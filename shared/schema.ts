@@ -27,8 +27,7 @@ export const quizoptions = pgTable("quizoptions", {
   questionid: integer("questionid").notNull(),
   text: text("text").notNull(),
   partyaffiliation: text("partyaffiliation").notNull(),
-  points: integer("points").default(1),
-});
+ });
 
 export const quizresults = pgTable("quizresults", {
   id: serial("id").primaryKey(),
