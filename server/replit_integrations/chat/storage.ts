@@ -24,7 +24,8 @@ export const chatStorage: IChatStorage = {
     return db
       .select()
       .from(conversations)
-      .orderBy(desc(conversations.createdat)); // lowercase
+      .orderBy(desc(conversations.createdAt)); 
+    // createdAt bleibt camelCase, weil deine Tabelle camelCase ist
   },
 
   async createConversation(title: string, userId: string, systemPrompt?: string) {
@@ -32,15 +33,15 @@ export const chatStorage: IChatStorage = {
       .insert(conversations)
       .values({
         title,
-        userid: userId,              // lowercase
-        systemprompt: systemPrompt || null // lowercase
+        userId,               // bleibt camelCase (so heißt die Spalte in deiner DB!)
+        systemPrompt: systemPrompt || null // bleibt camelCase
       })
       .returning();
     return conversation;
   },
 
   async deleteConversation(id: number) {
-    await db.delete(messages).where(eq(messages.conversationid, id)); // lowercase
+    await db.delete(messages).where(eq(messages.conversationId, id)); 
     await db.delete(conversations).where(eq(conversations.id, id));
   },
 
@@ -48,15 +49,15 @@ export const chatStorage: IChatStorage = {
     return db
       .select()
       .from(messages)
-      .where(eq(messages.conversationid, conversationId)) // lowercase
-      .orderBy(messages.createdat); // lowercase
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(messages.createdAt); 
   },
 
   async createMessage(conversationId: number, role: string, content: string) {
     const [message] = await db
       .insert(messages)
       .values({
-        conversationid: conversationId, // lowercase
+        conversationId, // camelCase, weil deine Tabelle camelCase ist
         role,
         content
       })
