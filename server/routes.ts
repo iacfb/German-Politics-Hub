@@ -107,7 +107,7 @@ export async function registerRoutes(
   //  const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
     const userid = `guest_${req.ip}`;
 
-    const data = await storage.getPolls(userId);
+    const data = await storage.getPolls(userid);
     res.json(data);
   });
 

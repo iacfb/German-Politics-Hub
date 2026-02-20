@@ -13,35 +13,54 @@ export interface IChatStorage {
 
 export const chatStorage: IChatStorage = {
   async getConversation(id: number) {
-    const [conversation] = await db.select().from(conversations).where(eq(conversations.id, id));
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, id));
     return conversation;
   },
 
   async getAllConversations() {
-    return db.select().from(conversations).orderBy(desc(conversations.createdAt));
+    return db
+      .select()
+      .from(conversations)
+      .orderBy(desc(conversations.createdat)); // lowercase
   },
 
   async createConversation(title: string, userId: string, systemPrompt?: string) {
-    const [conversation] = await db.insert(conversations).values({ 
-      title,
-      userId,
-      systemPrompt: systemPrompt || null
-    }).returning();
+    const [conversation] = await db
+      .insert(conversations)
+      .values({
+        title,
+        userid: userId,              // lowercase
+        systemprompt: systemPrompt || null // lowercase
+      })
+      .returning();
     return conversation;
   },
 
   async deleteConversation(id: number) {
-    await db.delete(messages).where(eq(messages.conversationId, id));
+    await db.delete(messages).where(eq(messages.conversationid, id)); // lowercase
     await db.delete(conversations).where(eq(conversations.id, id));
   },
 
   async getMessagesByConversation(conversationId: number) {
-    return db.select().from(messages).where(eq(messages.conversationId, conversationId)).orderBy(messages.createdAt);
+    return db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationid, conversationId)) // lowercase
+      .orderBy(messages.createdat); // lowercase
   },
 
   async createMessage(conversationId: number, role: string, content: string) {
-    const [message] = await db.insert(messages).values({ conversationId, role, content }).returning();
+    const [message] = await db
+      .insert(messages)
+      .values({
+        conversationid: conversationId, // lowercase
+        role,
+        content
+      })
+      .returning();
     return message;
   },
 };
-
