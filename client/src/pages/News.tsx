@@ -40,10 +40,10 @@ export default function News() {
               transition={{ duration: 0.6 }}
             >
               <Card className="overflow-hidden border-none shadow-2xl rounded-[2.5rem] bg-card/50 backdrop-blur-sm group">
-                {article.imageUrl && (
+                {article.imageurl && (
                   <div className="h-[25rem] overflow-hidden relative">
                     <img 
-                      src={article.imageUrl} 
+                      src={article.imageurl} 
                       alt={article.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                     />

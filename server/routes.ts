@@ -5,7 +5,7 @@ import { api } from "@shared/routes";
 //import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerChatRoutes } from "./replit_integrations/chat";
 import { db } from "./db";
-import { quizzes, quizQuestions, quizOptions, polls, pollOptions, articles } from "@shared/schema";
+import { quizzes, quizquestions, quizoptions, polls, polloptions, articles } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 
 export async function registerRoutes(
@@ -22,17 +22,17 @@ export async function registerRoutes(
   // Allow guest chat
   app.get("/api/conversations", async (req, res) => {
 //    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userId = `guest_${req.ip}`;
+    const userid = `guest_${req.ip}`;
 
-    const data = await storage.getConversations(userId);
+    const data = await storage.getConversations(userid);
     res.json(data);
   });
 
   app.post("/api/conversations", async (req, res) => {
 //    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userId = `guest_${req.ip}`;
+    const userid = `guest_${req.ip}`;
     const { title, systemPrompt } = req.body;
-    const convo = await storage.createConversation(userId, title || "Neue politische Diskussion", systemPrompt);
+    const convo = await storage.createConversation(userid, title || "Neue politische Diskussion", systemPrompt);
     res.json(convo);
   });
 
@@ -49,12 +49,12 @@ export async function registerRoutes(
   });
 
   app.post(api.quizzes.submit.path, async (req, res) => {
-    const quizId = Number(req.params.id);
+    const quizid = Number(req.params.id);
     const { answers } = req.body;
   //  const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userId = `guest_${req.ip}`;
+    const userid = `guest_${req.ip}`;
 
-    const quiz = await storage.getQuiz(quizId);
+    const quiz = await storage.getQuiz(quizid);
     if (!quiz) return res.status(404).json({ message: "Quiz nicht gefunden" });
 
     const scores: Record<string, number> = {};
@@ -69,8 +69,8 @@ export async function registerRoutes(
           // New logic: 2 points for full match, 1 for neutral, 0 for mismatch
           // Actually, let's keep it simple for now based on partyAffiliation
           const weight = option.text === "Stimme zu" ? 2 : (option.text === "Neutral" ? 1 : 0);
-          if (option.partyAffiliation && option.partyAffiliation !== "Neutral") {
-             scores[option.partyAffiliation] = (scores[option.partyAffiliation] || 0) + weight;
+          if (option.partyaffiliation && option.partyaffiliation !== "Neutral") {
+             scores[option.partyaffiliation] = (scores[option.partyaffiliation] || 0) + weight;
           }
         }
       }
@@ -93,10 +93,10 @@ export async function registerRoutes(
     });
 
     const result = await storage.submitQuizResult({
-      userId,
-      quizId,
-      matchedParty,
-      partyScores: finalScores
+      userid,
+      quizid,
+      matchedparty,
+      partyscores: finalScores
     });
 
     res.json(result);
@@ -105,25 +105,25 @@ export async function registerRoutes(
   // === Polls (Meinungscheck) ===
   app.get(api.polls.list.path, async (req, res) => {
   //  const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userId = `guest_${req.ip}`;
+    const userid = `guest_${req.ip}`;
 
     const data = await storage.getPolls(userId);
     res.json(data);
   });
 
   app.post(api.polls.vote.path, async (req, res) => {
-    const pollId = Number(req.params.id);
-    const { optionId } = req.body;
+    const pollid = Number(req.params.id);
+    const { optionid } = req.body;
    // const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userId = `guest_${req.ip}`;
+    const userid = `guest_${req.ip}`;
 
 
-    const hasVoted = await storage.hasVoted(pollId, userId);
+    const hasVoted = await storage.hasVoted(pollid, userid);
     if (hasVoted) {
       return res.status(400).json({ message: "Bereits abgestimmt" });
     }
 
-    await storage.votePoll(pollId, optionId, userId);
+    await storage.votePoll(pollid, optionid, userid);
     res.json({ success: true });
   });
 
@@ -159,25 +159,25 @@ export async function registerRoutes(
           title TEXT,
           description TEXT,
           category TEXT,
-          imageUrl TEXT,
-          createdAt TIMESTAMP DEFAULT NOW()
+          imageurl TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
         );
       `);
 
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS quizquestions (
           id SERIAL PRIMARY KEY,
-          quizId INTEGER REFERENCES quizzes(id),
+          quizid INTEGER REFERENCES quizzes(id),
           text TEXT
         );
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS quizOptions (
+        CREATE TABLE IF NOT EXISTS quizoptions (
           id SERIAL PRIMARY KEY,
-          questionId INTEGER REFERENCES quizQuestions(id),
+          questionid INTEGER REFERENCES quizquestions(id),
           text TEXT,
-          partyAffiliation TEXT
+          partyaffiliation TEXT
         );
       `);
 
@@ -185,14 +185,14 @@ export async function registerRoutes(
         CREATE TABLE IF NOT EXISTS polls (
           id SERIAL PRIMARY KEY,
           question TEXT,
-          createdAt TIMESTAMP DEFAULT NOW()
+          createdat TIMESTAMP DEFAULT NOW()
         );
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS pollOptions (
+        CREATE TABLE IF NOT EXISTS polloptions (
           id SERIAL PRIMARY KEY,
-          pollId INTEGER REFERENCES polls(id),
+          pollid INTEGER REFERENCES polls(id),
           text TEXT
         );
       `);
@@ -200,9 +200,9 @@ export async function registerRoutes(
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS pollvotes (
           id SERIAL PRIMARY KEY,
-          pollId INTEGER REFERENCES polls(id),
-          optionId INTEGER REFERENCES pollOptions(id),
-          userId TEXT
+          pollid INTEGER REFERENCES polls(id),
+          optionid INTEGER REFERENCES polloptions(id),
+          userid TEXT
         );
       `);
 
@@ -214,9 +214,9 @@ export async function registerRoutes(
           content TEXT,
           type TEXT,
           source TEXT,
-          sourceUrl TEXT,
-          imageUrl TEXT,
-          createdAt TIMESTAMP DEFAULT NOW()
+          sourceurl TEXT,
+          imageurl TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
         );
       `);
 
@@ -237,10 +237,10 @@ async function seedDatabase() {
   console.log("Seeding database with German content...");
   
   // Clear old data to avoid duplicates with old names
-  await db.delete(quizOptions);
-  await db.delete(quizQuestions);
+  await db.delete(quizoptions);
+  await db.delete(quizquestions);
   await db.delete(quizzes);
-  await db.delete(pollOptions);
+  await db.delete(polloptions);
   await db.delete(polls);
   await db.delete(articles);
 
@@ -250,7 +250,7 @@ async function seedDatabase() {
       title: "Wahlkompass: Landtagswahl BW 2026",
       description: "Der offizielle Wahlkompass für die Landtagswahl in Baden-Württemberg 2026. 38 Fragen zu den wichtigsten Landesthemen.",
       category: "landtag2026",
-      imageUrl: "https://www.planet-wissen.de/sendungen/sendung-parteien-kugelschreiber-100~_v-HDready.png",
+      imageurl: "https://www.planet-wissen.de/sendungen/sendung-parteien-kugelschreiber-100~_v-HDready.png",
       questions: [
         { text: "Die Landesregierung soll Unternehmen unterstützen, die in Baden-Württemberg Rüstungsgüter herstellen.", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme zu", party: "FDP" }, { text: "Stimme nicht zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "Linke" }] },
         { text: "Die Pflicht zur Errichtung einer Solaranlage bei vollständigen Dachsanierungen soll entfallen.", options: [{ text: "Stimme zu", party: "AfD" }, { text: "Stimme zu", party: "FDP" }, { text: "Stimme nicht zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "SPD" }] },
@@ -296,7 +296,7 @@ async function seedDatabase() {
       title: "Wahlkompass: Kurz & Knapp",
       description: "Die wichtigsten Themen in 10 schnellen Fragen.",
       category: "quick",
-      imageUrl: "https://tse4.mm.bing.net/th/id/OIP.NkMi21UpsXnB4RiAB_wsLQHaEK?cb=defcachec2&rs=1&pid=ImgDetMain&o=7&rm=3",
+      imageurl: "https://tse4.mm.bing.net/th/id/OIP.NkMi21UpsXnB4RiAB_wsLQHaEK?cb=defcachec2&rs=1&pid=ImgDetMain&o=7&rm=3",
       questions: [
         { text: "Sollte Deutschland mehr Geld für die Bundeswehr ausgeben?", options: [{ text: "Stimme zu", party: "CDU" }, { text: "Stimme nicht zu", party: "Linke" }, { text: "Neutral", party: "SPD" }] },
         { text: "Sollte es ein Tempolimit auf Autobahnen geben?", options: [{ text: "Stimme zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "FDP" }, { text: "Stimme nicht zu", party: "CDU" }] },
@@ -314,7 +314,7 @@ async function seedDatabase() {
       title: "Wahlkompass: Allgemein",
       description: "Allgemeine politische Orientierung (30 Fragen).",
       category: "general",
-      imageUrl: "https://images.unsplash.com/photo-1540910419892-f0c74b0e8966",
+      imageurl: "https://images.unsplash.com/photo-1540910419892-f0c74b0e8966",
       questions: [
         { text: "Die Steuern für Reiche sollen erhöht werden.", options: [{ text: "Stimme zu", party: "Linke" }, { text: "Stimme zu", party: "SPD" }, { text: "Stimme nicht zu", party: "FDP" }] },
         { text: "Atomkraft soll wieder genutzt werden.", options: [{ text: "Stimme zu", party: "AfD" }, { text: "Stimme zu", party: "CDU" }, { text: "Stimme nicht zu", party: "Grüne" }] },
@@ -332,7 +332,7 @@ async function seedDatabase() {
       title: "Wahlkompass: Junior",
       description: "Einfach erklärt für Kinder und Jugendliche (25 Fragen).",
       category: "junior",
-      imageUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7",
+      imageurl: "https://images.unsplash.com/photo-1509062522246-3755977927d7",
       questions: [
         { text: "Sollte es mehr Spielplätze in deiner Stadt geben?", options: [{ text: "Stimme zu", party: "SPD" }, { text: "Stimme zu", party: "Grüne" }, { text: "Stimme nicht zu", party: "FDP" }] },
         { text: "Sollten Schulen moderner ausgestattet werden (z.B. Tablets für alle)?", options: [{ text: "Stimme zu", party: "FDP" }, { text: "Stimme zu", party: "CDU" }, { text: "Neutral", party: "SPD" }] },
@@ -368,20 +368,20 @@ async function seedDatabase() {
       title: config.title,
       description: config.description,
       category: config.category,
-      imageUrl: config.imageUrl
+      imageurl: config.imageurl
     }).returning();
 
     for (const q of config.questions) {
-      const [question] = await db.insert(quizQuestions).values({
-        quizId: quiz.id,
+      const [question] = await db.insert(quizquestions).values({
+        quizid: quiz.id,
         text: q.text
       }).returning();
 
       for (const o of q.options) {
-        await db.insert(quizOptions).values({
-          questionId: question.id,
+        await db.insert(quizoptions).values({
+          questionid: question.id,
           text: o.text,
-          partyAffiliation: o.party
+          partyaffiliation: o.party
         });
       }
     }
@@ -435,7 +435,7 @@ async function seedDatabase() {
     const [poll] = await db.insert(polls).values({
       question: p.question
     }).returning();
-    await db.insert(pollOptions).values(p.options.map(text => ({ pollId: poll.id, text })));
+    await db.insert(polloptions).values(p.options.map(text => ({ pollId: poll.id, text })));
   }
 
   // Aktuelle Themen (Echte Artikel)
@@ -446,8 +446,8 @@ async function seedDatabase() {
       content: "Ein neuer Vorstoß der SPD-Bundestagsfraktion sorgt für Diskussionen: Die Partei fordert, dass Plattformen wie TikTok und Instagram erst ab einem Alter von 14 Jahren genutzt werden dürfen. Ziel ist es, die psychische Gesundheit junger Menschen zu schützen und Cybermobbing sowie die Verbreitung von Fake News einzudämmen.",
       type: "news",
       source: "MSN / SPD",
-      sourceUrl: "https://www.msn.com/de-de/nachrichten/other/vorsto%C3%9F-der-spd-tiktok-und-instagram-erst-von-14-jahren-an/ar-AA1WsSpu",
-      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsSpu.img"
+      sourceurl: "https://www.msn.com/de-de/nachrichten/other/vorsto%C3%9F-der-spd-tiktok-und-instagram-erst-von-14-jahren-an/ar-AA1WsSpu",
+      imageurl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsSpu.img"
     },
     {
       title: "US-Außenminister Blinken besucht Ungarn",
@@ -455,8 +455,8 @@ async function seedDatabase() {
       content: "US-Außenminister Antony Blinken besucht erstmals seit sieben Jahren wieder Ungarn. In Budapest stehen Gespräche über die NATO-Zusammenarbeit, die Unterstützung der Ukraine und die Rechtsstaatlichkeit in Ungarn auf der Agenda. Der Besuch gilt als wichtiges Signal für die Beziehungen zwischen den USA und der Regierung von Viktor Orbán.",
       type: "news",
       source: "MSN / AFP",
-      sourceUrl: "https://www.msn.com/de-de/nachrichten/other/us-au%C3%9Fenminister-erster-ungarn-besuch-seit-sieben-jahren/ar-AA1WsUWB",
-      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsUWB.img"
+      sourceurl: "https://www.msn.com/de-de/nachrichten/other/us-au%C3%9Fenminister-erster-ungarn-besuch-seit-sieben-jahren/ar-AA1WsUWB",
+      imageurl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsUWB.img"
     },
     {
       title: "Prozess gegen Deutschland: Harald Martensteins Plädoyer gegen ein AfD-Verbot",
@@ -464,8 +464,8 @@ async function seedDatabase() {
       content: "In seinem ausführlichen Plädoyer setzt sich Harald Martenstein kritisch mit der Forderung nach einem AfD-Verbot auseinander. Er argumentiert, dass ein solches Verfahren die Polarisierung in der Gesellschaft weiter verschärfen könnte und die demokratische Auseinandersetzung nicht ersetzen kann. Martenstein warnt davor, die Wähler der Partei durch ein Verbot weiter zu radikalisieren.",
       type: "news",
       source: "MSN / WELT",
-      sourceUrl: "https://www.msn.com/de-de/nachrichten/politik/prozess-gegen-deutschland-harald-martensteins-pl%C3%A4doyer-gegen-ein-afd-verbot-im-wortlaut/ar-AA1WrGvF",
-      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WrGvF.img"
+      sourceurl: "https://www.msn.com/de-de/nachrichten/politik/prozess-gegen-deutschland-harald-martensteins-pl%C3%A4doyer-gegen-ein-afd-verbot-im-wortlaut/ar-AA1WrGvF",
+      imageurl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WrGvF.img"
     },
     {
       title: "AfD-Politiker beschäftigen Familienmitglieder",
@@ -473,8 +473,8 @@ async function seedDatabase() {
       content: "Berichte über die Beschäftigung von Familienmitgliedern durch AfD-Politiker sorgen für Kritik. Während die Partei oft Nepotismus bei anderen Parteien anprangert, sehen sich einige ihrer Abgeordneten gezwungen, auf Verwandte zurückzugreifen, da es schwierig sei, loyale und qualifizierte Mitarbeiter auf dem freien Markt zu finden, die keine beruflichen Nachteile durch eine Tätigkeit für die AfD befürchten.",
       type: "news",
       source: "MSN / Politik",
-      sourceUrl: "https://www.msn.com/de-de/nachrichten/politik/afd-politiker-besch%C3%A4ftigen-familienmitglieder-warum-sie-oft-keine-andere-m%C3%B6glichkeit-sehen/ar-AA1WsMQ2",
-      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsMQ2.img"
+      sourceurl: "https://www.msn.com/de-de/nachrichten/politik/afd-politiker-besch%C3%A4ftigen-familienmitglieder-warum-sie-oft-keine-andere-m%C3%B6glichkeit-sehen/ar-AA1WsMQ2",
+      imageurl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsMQ2.img"
     },
     {
       title: "Baden-Württemberg: Was eine neue Regierung in Stuttgart erwartet",
@@ -482,8 +482,8 @@ async function seedDatabase() {
       content: "Vor der kommenden Landtagswahl in Baden-Württemberg rücken die großen Herausforderungen für Stuttgart in den Mittelpunkt. Eine neue Regierung wird sich mit der Transformation der Automobilindustrie, dem Lehrermangel und dem maroden Zustand vieler Landesstraßen auseinandersetzen müssen. Experten betonen die Notwendigkeit schneller Investitionen und Reformen.",
       type: "news",
       source: "MSN / Finanzen",
-      sourceUrl: "https://www.msn.com/de-de/finanzen/top-stories/baden-w%C3%BCrttemberg-was-eine-neue-regierung-in-stuttgart-erwartet/ar-AA1WsnaR",
-      imageUrl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsnaR.img"
+      sourceurl: "https://www.msn.com/de-de/finanzen/top-stories/baden-w%C3%BCrttemberg-was-eine-neue-regierung-in-stuttgart-erwartet/ar-AA1WsnaR",
+      imageurl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsnaR.img"
     }
   ]);
 
