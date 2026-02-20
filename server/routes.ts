@@ -154,9 +154,16 @@ export async function registerRoutes(
   app.post("/admin/init-db", async (req, res) => {
     try {
 
+      //  GANZ OBEN: Alte Tabellen löschen, damit Render sie neu erstellt
+      await db.execute(sql`DROP TABLE IF EXISTS pollvotes CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS polloptions CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS polls CASCADE;`);
       await db.execute(sql`DROP TABLE IF EXISTS quizoptions CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS quizquestions CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS quizzes CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS articles CASCADE;`);
 
-      
+      // Danach: Tabellen NEU erstellen
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS quizzes (
           id SERIAL PRIMARY KEY,
@@ -225,6 +232,7 @@ export async function registerRoutes(
       `);
 
       res.json({ ok: true, message: "Tables created correctly" });
+
     } catch (err) {
       console.error(err);
       res.status(500).json({ ok: false, error: String(err) });
