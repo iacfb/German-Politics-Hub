@@ -1,149 +1,151 @@
-import type { express, request, response } from "express";
-import groq from "groq-sdk";
-import { chatstorage } from "./storage";
+import type { Express, Request, Response } from "express";
+import Groq from "groq-sdk";
+import { chatStorage } from "./storage";
 
-function getgroqclient() {
-  const apikey = process.env.GROQ_API_KEY;
-  if (!apikey) {
+function getGroqClient() {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
     throw new Error("GROQ_API_KEY is not set");
   }
-  return new groq({ apiKey: apikey });
+  return new Groq({ apiKey });
 }
 
-export function registerchatroutes(app: express): void {
 
-  // get all conversations
-  app.get("/api/conversations", async (req: request, res: response) => {
+export function registerChatRoutes(app: Express): void {
+
+  // Get all conversations
+  app.get("/api/conversations", async (req: Request, res: Response) => {
     try {
-      const conversations = await chatstorage.getallconversations();
+      const conversations = await chatStorage.getAllConversations();
       res.json(conversations);
     } catch (error) {
-      console.error("error fetching conversations:", error);
-      res.status(500).json({ error: "failed to fetch conversations" });
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ error: "Failed to fetch conversations" });
     }
   });
 
-  // get single conversation with messages
-  app.get("/api/conversations/:id", async (req: request, res: response) => {
+  // Get single conversation with messages
+  app.get("/api/conversations/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseint(req.params.id);
-      const conversation = await chatstorage.getconversation(id);
+      const id = parseInt(req.params.id);
+      const conversation = await chatStorage.getConversation(id);
       if (!conversation) {
-        return res.status(404).json({ error: "conversation not found" });
+        return res.status(404).json({ error: "Conversation not found" });
       }
-      const messages = await chatstorage.getmessagesbyconversation(id);
+      const messages = await chatStorage.getMessagesByConversation(id);
       res.json({ ...conversation, messages });
     } catch (error) {
-      console.error("error fetching conversation:", error);
-      res.status(500).json({ error: "failed to fetch conversation" });
+      console.error("Error fetching conversation:", error);
+      res.status(500).json({ error: "Failed to fetch conversation" });
     }
   });
 
-  // create new conversation
-  app.post("/api/conversations", async (req: request, res: response) => {
+  // Create new conversation
+  app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
-      const { title, systemprompt } = req.body;
-      const userid = `guest_${req.ip}`;
+      const { title, systemPrompt } = req.body;
+      const userId = `guest_${req.ip}`;
 
-      const conversation = await chatstorage.createconversation(
-        title || "neue politische diskussion",
-        userid,
-        systemprompt
+      const conversation = await chatStorage.createConversation(
+        title || "Neue politische Diskussion",
+        userId,
+        systemPrompt
       );
 
       res.status(201).json(conversation);
     } catch (error) {
-      console.error("error creating conversation:", error);
-      res.status(500).json({ error: "failed to create conversation" });
+      console.error("Error creating conversation:", error);
+      res.status(500).json({ error: "Failed to create conversation" });
     }
   });
 
-  // delete conversation
-  app.delete("/api/conversations/:id", async (req: request, res: response) => {
+  // Delete conversation
+  app.delete("/api/conversations/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseint(req.params.id);
-      await chatstorage.deleteconversation(id);
+      const id = parseInt(req.params.id);
+      await chatStorage.deleteConversation(id);
       res.status(204).send();
     } catch (error) {
-      console.error("error deleting conversation:", error);
-      res.status(500).json({ error: "failed to delete conversation" });
+      console.error("Error deleting conversation:", error);
+      res.status(500).json({ error: "Failed to delete conversation" });
     }
   });
 
-  // send message + stream ai response
-  app.post("/api/conversations/:id/messages", async (req: request, res: response) => {
+  // Send message + stream AI response
+  app.post("/api/conversations/:id/messages", async (req: Request, res: Response) => {
     try {
-      const conversationid = parseint(req.params.id);
+      const conversationId = parseInt(req.params.id);
       const { content } = req.body;
 
-      const conversation = await chatstorage.getconversation(conversationid);
+      const conversation = await chatStorage.getConversation(conversationId);
       if (!conversation) {
-        return res.status(404).json({ error: "conversation not found" });
+        return res.status(404).json({ error: "Conversation not found" });
       }
 
-      // save user message
-      await chatstorage.createmessage(conversationid, "user", content);
+      // Save user message
+      await chatStorage.createMessage(conversationId, "user", content);
 
-      // build message history
-      const messages = await chatstorage.getmessagesbyconversation(conversationid);
+      // Build message history
+      const messages = await chatStorage.getMessagesByConversation(conversationId);
 
-      const chatmessages: any[] = [];
+      const chatMessages: any[] = [];
 
-      if (conversation.systemprompt) {
-        chatmessages.push({
+      if (conversation.systemPrompt) {
+        chatMessages.push({
           role: "system",
-          content: String(conversation.systemprompt)
+          content: String(conversation.systemPrompt)
         });
       }
 
-      chatmessages.push(
+      chatMessages.push(
         ...messages.map((m) => ({
           role: m.role as "user" | "assistant",
           content: String(m.content),
         }))
       );
 
-      // sse headers
+      // SSE headers
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      // groq streaming
-      const groqclient = getgroqclient();
+      // Groq streaming
+        const groq = getGroqClient();
 
-      const stream = await groqclient.chat.completions.create({
+        const stream = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
-        messages: chatmessages,
+        messages: chatMessages,
         stream: true
       });
 
-      let fullresponse = "";
+      let fullResponse = "";
 
       for await (const chunk of stream) {
         const delta = chunk.choices?.[0]?.delta?.content || "";
         if (delta) {
-          fullresponse += delta;
+          fullResponse += delta;
           res.write(`data: ${JSON.stringify({ content: delta })}\n\n`);
         }
       }
 
-      // save assistant message
-      await chatstorage.createmessage(conversationid, "assistant", fullresponse);
+      // Save assistant message
+      await chatStorage.createMessage(conversationId, "assistant", fullResponse);
 
       res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
       res.end();
 
     } catch (error) {
-      console.error("error sending message:", error);
+      console.error("Error sending message:", error);
 
       if (!res.headersSent) {
-        return res.status(500).json({ error: "failed to send message" });
+        return res.status(500).json({ error: "Failed to send message" });
       }
 
       try {
-        res.write(`data: ${JSON.stringify({ error: "failed to send message" })}\n\n`);
+        res.write(`data: ${JSON.stringify({ error: "Failed to send message" })}\n\n`);
         res.end();
       } catch (_) {}
     }
   });
 }
+chatStorage
