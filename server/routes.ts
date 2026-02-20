@@ -153,6 +153,10 @@ export async function registerRoutes(
   // === Admin: Create Tables (for Render PostgreSQL) ===
   app.post("/admin/init-db", async (req, res) => {
     try {
+
+      await db.execute(sql`DROP TABLE IF EXISTS quizoptions CASCADE;`);
+
+      
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS quizzes (
           id SERIAL PRIMARY KEY,
