@@ -37,7 +37,7 @@ export default function Dashboard() {
             Willkommen{user?.firstName ? `, ${user.firstName}` : ''}.
           </motion.h1>
           <motion.p variants={item} className="text-xl text-muted-foreground max-w-2xl">
-            Beteilige dich an der deutschen Politik. Nimm an Umfragen teil, finde deine Partei im Wahl-O-Mat und bleib informiert.
+            Beteilige dich an der deutschen Politik. Nimm an Umfragen teil, finde deine Partei im Wahlkompass und bleib informiert.
           </motion.p>
         </section>
 

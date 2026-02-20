@@ -23,7 +23,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/quizzes", label: "Wahl-O-Mat", icon: Vote },
+    { href: "/quizzes", label: "Wahlkompass", icon: Vote },
     { href: "/polls", label: "Meinungscheck", icon: Vote },
     { href: "/news", label: "Aktuelle Themen", icon: Newspaper },
     { href: "/chat", label: "CivicChat AI", icon: MessageSquareText },
