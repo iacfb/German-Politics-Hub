@@ -10,10 +10,8 @@ function getGroqClient() {
   return new Groq({ apiKey });
 }
 
-
 export function registerChatRoutes(app: Express): void {
 
-  // Get all conversations
   app.get("/api/conversations", async (req: Request, res: Response) => {
     try {
       const conversations = await chatStorage.getAllConversations();
@@ -24,7 +22,6 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  // Get single conversation with messages
   app.get("/api/conversations/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
@@ -40,7 +37,6 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  // Create new conversation
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       const { title, systemPrompt } = req.body;
@@ -59,7 +55,6 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  // Delete conversation
   app.delete("/api/conversations/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
@@ -71,7 +66,6 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  // Send message + stream AI response
   app.post("/api/conversations/:id/messages", async (req: Request, res: Response) => {
     try {
       const conversationId = parseInt(req.params.id);
@@ -82,10 +76,8 @@ export function registerChatRoutes(app: Express): void {
         return res.status(404).json({ error: "Conversation not found" });
       }
 
-      // Save user message
       await chatStorage.createMessage(conversationId, "user", content);
 
-      // Build message history
       const messages = await chatStorage.getMessagesByConversation(conversationId);
 
       const chatMessages: any[] = [];
@@ -104,15 +96,13 @@ export function registerChatRoutes(app: Express): void {
         }))
       );
 
-      // SSE headers
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      // Groq streaming
-        const groq = getGroqClient();
+      const groq = getGroqClient();
 
-        const stream = await groq.chat.completions.create({
+      const stream = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: chatMessages,
         stream: true
@@ -128,7 +118,6 @@ export function registerChatRoutes(app: Express): void {
         }
       }
 
-      // Save assistant message
       await chatStorage.createMessage(conversationId, "assistant", fullResponse);
 
       res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
@@ -148,4 +137,3 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 }
-chatStorage
