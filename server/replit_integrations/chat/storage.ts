@@ -13,55 +13,35 @@ export interface IChatStorage {
 
 export const chatStorage: IChatStorage = {
   async getConversation(id: number) {
-    const [conversation] = await db
-      .select()
-      .from(conversations)
-      .where(eq(conversations.id, id));
+    const [conversation] = await db.select().from(conversations).where(eq(conversations.id, id));
     return conversation;
   },
 
   async getAllConversations() {
-    return db
-      .select()
-      .from(conversations)
-      .orderBy(desc(conversations.createdAt)); 
-    // createdAt bleibt camelCase, weil deine Tabelle camelCase ist
+    return db.select().from(conversations).orderBy(desc(conversations.createdAt));
   },
 
   async createConversation(title: string, userId: string, systemPrompt?: string) {
-    const [conversation] = await db
-      .insert(conversations)
-      .values({
-        title,
-        userId,               // bleibt camelCase (so heißt die Spalte in deiner DB!)
-        systemPrompt: systemPrompt || null // bleibt camelCase
-      })
-      .returning();
+    const [conversation] = await db.insert(conversations).values({ 
+      title,
+      userId,
+      systemPrompt: systemPrompt || null
+    }).returning();
     return conversation;
   },
 
   async deleteConversation(id: number) {
-    await db.delete(messages).where(eq(messages.conversationId, id)); 
+    await db.delete(messages).where(eq(messages.conversationId, id));
     await db.delete(conversations).where(eq(conversations.id, id));
   },
 
   async getMessagesByConversation(conversationId: number) {
-    return db
-      .select()
-      .from(messages)
-      .where(eq(messages.conversationId, conversationId))
-      .orderBy(messages.createdAt); 
+    return db.select().from(messages).where(eq(messages.conversationId, conversationId)).orderBy(messages.createdAt);
   },
 
   async createMessage(conversationId: number, role: string, content: string) {
-    const [message] = await db
-      .insert(messages)
-      .values({
-        conversationId, // camelCase, weil deine Tabelle camelCase ist
-        role,
-        content
-      })
-      .returning();
+    const [message] = await db.insert(messages).values({ conversationId, role, content }).returning();
     return message;
   },
 };
+
