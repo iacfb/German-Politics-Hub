@@ -28,7 +28,7 @@ export default function Quizzes() {
     <Layout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-display font-bold mb-2">Wahlkompass</h1>
+          <h1 className="text-4xl font-display font-bold mb-2">Wahl-O-Mat</h1>
           <p className="text-muted-foreground text-lg">Vergleiche deine Standpunkte mit den Programmen der Parteien.</p>
         </div>
 
