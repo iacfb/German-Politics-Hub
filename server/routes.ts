@@ -173,9 +173,9 @@ export async function registerRoutes(
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS quizoptions (
+        CREATE TABLE IF NOT EXISTS quizOptions (
           id SERIAL PRIMARY KEY,
-          questionId INTEGER REFERENCES quizquestions(id),
+          questionId INTEGER REFERENCES quizQuestions(id),
           text TEXT,
           partyAffiliation TEXT
         );
@@ -190,7 +190,7 @@ export async function registerRoutes(
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS polloptions (
+        CREATE TABLE IF NOT EXISTS pollOptions (
           id SERIAL PRIMARY KEY,
           pollId INTEGER REFERENCES polls(id),
           text TEXT
@@ -201,7 +201,7 @@ export async function registerRoutes(
         CREATE TABLE IF NOT EXISTS pollvotes (
           id SERIAL PRIMARY KEY,
           pollId INTEGER REFERENCES polls(id),
-          optionId INTEGER REFERENCES polloptions(id),
+          optionId INTEGER REFERENCES pollOptions(id),
           userId TEXT
         );
       `);
