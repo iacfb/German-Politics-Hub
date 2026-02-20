@@ -181,7 +181,6 @@ export async function registerRoutes(
           id SERIAL PRIMARY KEY,
           questionid INTEGER REFERENCES quizquestions(id),
           text TEXT,
-          points INTEGER NOT NULL,
           partyaffiliation TEXT
         );
       `);
