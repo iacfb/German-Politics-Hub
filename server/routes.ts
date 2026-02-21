@@ -5,8 +5,7 @@ import { storage } from "./storage";
 import { api } from "@shared/routes";
 //import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerChatRoutes } from "./replit_integrations/chat";
-import { db } from "./db/index";
-
+import { db } from "./db";
 import { quizzes, quizquestions, quizoptions, polls, polloptions, articles } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 
