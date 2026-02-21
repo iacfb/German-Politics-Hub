@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db } from "./db/index";
 import {
   quizzes, quizquestions, quizoptions, quizresults,
   polls, polloptions, pollvotes,
