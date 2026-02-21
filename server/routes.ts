@@ -1,4 +1,5 @@
 import type { Express } from "express";
+// build trigger 2
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
@@ -138,6 +139,8 @@ export async function registerRoutes(
   //if (existingQuizzes.length <= 1) { // Force re-seed to ensure all requested data is present
   //  await seedDatabase();
   //}
+  // force new build
+
 
   // === Admin: Seed Database ===
   app.post("/admin/seed", async (req, res) => {
