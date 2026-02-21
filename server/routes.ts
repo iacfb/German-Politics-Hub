@@ -158,9 +158,11 @@ export async function registerRoutes(
       await db.execute(sql`DROP TABLE IF EXISTS pollvotes CASCADE;`);
       await db.execute(sql`DROP TABLE IF EXISTS polloptions CASCADE;`);
       await db.execute(sql`DROP TABLE IF EXISTS polls CASCADE;`);
+
       await db.execute(sql`DROP TABLE IF EXISTS quizoptions CASCADE;`);
       await db.execute(sql`DROP TABLE IF EXISTS quizquestions CASCADE;`);
       await db.execute(sql`DROP TABLE IF EXISTS quizzes CASCADE;`);
+
       await db.execute(sql`DROP TABLE IF EXISTS articles CASCADE;`);
 
       // Danach: Tabellen NEU erstellen
