@@ -470,10 +470,7 @@ async function seedDatabase() {
       options: ["Sehr wahrscheinlich", "Wahrscheinlich", "Eher unwahrscheinlich", "Sicher nicht"]
     }
   ];
-  const pollData = [
-    ...
-  ];
-
+  
   // HIER kommt der neue Code rein:
 
   for (const p of pollData) {
