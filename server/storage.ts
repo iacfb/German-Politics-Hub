@@ -1,12 +1,22 @@
 import { db } from "./db";
 import {
-  quizzes, quizquestions, quizoptions, quizresults,
-  polls, polloptions, pollvotes,
-  articles, conversations,
-  type Quiz, type Quizwithquestions, type Quizresult,
-  type Poll, type Pollwithdetails, type Article
+  quizzes,
+  quizquestions,
+  quizoptions,
+  quizresults,
+  polls,
+  polloptions,
+  pollvotes,
+  articles,
+  conversations,
+  type Quiz,
+  type Quizwithquestions,
+  type Quizresult,
+  type Pollwithdetails,
+  type Article
 } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+
+import { eq, sql, inArray, desc } from "drizzle-orm";
 
 export interface IStorage {
   getQuizzes(): Promise<Quiz[]>;
@@ -27,18 +37,22 @@ export class DatabaseStorage implements IStorage {
 
   // === Conversations ===
   async getConversations(userid: string): Promise<any[]> {
-    return await db.query.conversations.findMany({
-      where: eq(conversations.userid, userid),
-      orderBy: (conversations, { desc }) => [desc(conversations.createdAt)]
-    });
+    return await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.userid, userid))
+      .orderBy(desc(conversations.createdat));
   }
 
   async createConversation(userid: string, title: string, systemprompt?: string): Promise<any> {
-    const [saved] = await db.insert(conversations).values({
-      userid,
-      title,
-      systemprompt: systemprompt || null
-    }).returning();
+    const [saved] = await db
+      .insert(conversations)
+      .values({
+        userid,
+        title,
+        systemprompt: systemprompt || null
+      })
+      .returning();
     return saved;
   }
 
@@ -48,16 +62,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getQuiz(id: number): Promise<Quizwithquestions | undefined> {
-    return await db.query.quizzes.findFirst({
-      where: eq(quizzes.id, id),
-      with: {
-        questions: {
-          with: {
-            options: true
-          }
-        }
-      }
-    });
+    const [quiz] = await db
+      .select()
+      .from(quizzes)
+      .where(eq(quizzes.id, id));
+
+    if (!quiz) return undefined;
+
+    const questions = await db
+      .select()
+      .from(quizquestions)
+      .where(eq(quizquestions.quizid, id));
+
+    const questionIds = questions.map(q => q.id);
+
+    const options =
+      questionIds.length > 0
+        ? await db
+            .select()
+            .from(quizoptions)
+            .where(inArray(quizoptions.questionid, questionIds))
+        : [];
+
+    const questionsWithOptions = questions.map(q => ({
+      ...q,
+      options: options.filter(o => o.questionid === q.id)
+    }));
+
+    return {
+      ...quiz,
+      questions: questionsWithOptions
+    } as Quizwithquestions;
   }
 
   async submitQuizResult(result: typeof quizresults.$inferInsert): Promise<Quizresult> {
@@ -67,39 +102,50 @@ export class DatabaseStorage implements IStorage {
 
   // === Polls ===
   async getPolls(userid?: string): Promise<Pollwithdetails[]> {
-    const allPolls = await db.query.polls.findMany({
-      with: {
-        options: {
-          with: {
-            votes: true
-          }
+    const pollsRows = await db
+      .select()
+      .from(polls)
+      .orderBy(desc(polls.createdat));
+
+    if (pollsRows.length === 0) return [];
+
+    const pollIds = pollsRows.map(p => p.id);
+
+    const optionsRows = await db
+      .select()
+      .from(polloptions)
+      .where(inArray(polloptions.pollid, pollIds));
+
+    const votesRows = await db
+      .select()
+      .from(pollvotes)
+      .where(inArray(pollvotes.pollid, pollIds));
+
+    return pollsRows.map(poll => {
+      const optionsForPoll = optionsRows.filter(o => o.pollid === poll.id);
+
+      let userVotedOptionId: number | undefined = undefined;
+
+      const optionsWithCounts = optionsForPoll.map(opt => {
+        const votesForOption = votesRows.filter(v => v.optionid === opt.id);
+
+        if (userid) {
+          const userVote = votesForOption.find(v => v.userid === userid);
+          if (userVote) userVotedOptionId = opt.id;
         }
-      },
-      orderBy: (polls, { desc }) => [desc(polls.createdAt)]
-    });
-
-    return Promise.all(
-      allPolls.map(async (poll) => {
-        let userVotedOptionId = undefined;
-
-        const optionsWithCounts = poll.options.map(opt => {
-          const votes = opt.votes.length;
-
-          if (userid) {
-            const userVote = opt.votes.find(v => v.userid === userid);
-            if (userVote) userVotedOptionId = opt.id;
-          }
-
-          return { ...opt, votes };
-        });
 
         return {
-          ...poll,
-          options: optionsWithCounts,
-          userVotedOptionId
+          ...opt,
+          votes: votesForOption.length
         };
-      })
-    );
+      });
+
+      return {
+        ...poll,
+        options: optionsWithCounts,
+        uservotedoptionid: userVotedOptionId
+      };
+    });
   }
 
   async votePoll(pollid: number, optionid: number, userid: string): Promise<void> {
@@ -111,14 +157,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async hasVoted(pollid: number, userid: string): Promise<boolean> {
-    const [vote] = await db.select().from(pollvotes)
+    const [vote] = await db
+      .select()
+      .from(pollvotes)
       .where(sql`${pollvotes.pollid} = ${pollid} AND ${pollvotes.userid} = ${userid}`);
     return !!vote;
   }
 
   // === Articles ===
   async getArticles(): Promise<Article[]> {
-    return await db.select().from(articles).orderBy(sql`${articles.createdAt} DESC`);
+    return await db
+      .select()
+      .from(articles)
+      .orderBy(desc(articles.createdat));
   }
 }
 
