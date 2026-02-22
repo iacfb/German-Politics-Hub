@@ -236,7 +236,18 @@ export async function registerRoutes(
           createdat TIMESTAMP DEFAULT NOW()
         );
       `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS conversations (
+          id SERIAL PRIMARY KEY,
+          userid TEXT,
+          title TEXT,
+          systemprompt TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
+        );
+      `);
 
+
+      
       res.json({ ok: true, message: "Tables created correctly" });
 
     } catch (err) {
