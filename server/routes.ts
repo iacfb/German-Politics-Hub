@@ -106,7 +106,7 @@ export async function registerRoutes(
   // === Polls (Meinungscheck) ===
   app.get(api.polls.list.path, async (req, res) => {
   //  const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userid = `guest_${req.ip}`;
+    const userId = `guest_${req.ip}`;
 
     const data = await storage.getPolls(userId);
     res.json(data);
