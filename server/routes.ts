@@ -141,7 +141,7 @@ export async function registerRoutes(
   //}
   // force new build
 
-
+  // build trigger 13
   // === Admin: Seed Database ===
   app.post("/admin/seed", async (req, res) => {
     try {
@@ -201,7 +201,8 @@ export async function registerRoutes(
         CREATE TABLE IF NOT EXISTS polls (
           id SERIAL PRIMARY KEY,
           question TEXT,
-          createdat TIMESTAMP DEFAULT NOW()
+          description TEXT,
+         createdat TIMESTAMP DEFAULT NOW()
         );
       `);
 
