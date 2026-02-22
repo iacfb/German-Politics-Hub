@@ -470,13 +470,26 @@ async function seedDatabase() {
       options: ["Sehr wahrscheinlich", "Wahrscheinlich", "Eher unwahrscheinlich", "Sicher nicht"]
     }
   ];
+  const pollData = [
+    ...
+  ];
+
+  // HIER kommt der neue Code rein:
 
   for (const p of pollData) {
-    const [poll] = await db.insert(polls).values({
-      question: p.question
+    const [savedPoll] = await db.insert(polls).values({
+      question: p.question,
+      description: null
     }).returning();
-    await db.insert(polloptions).values(p.options.map(text => ({ pollId: poll.id, text })));
+
+    for (const opt of p.options) {
+      await db.insert(polloptions).values({
+        pollid: savedPoll.id,
+        text: opt
+      });
+    }
   }
+
 
   // Aktuelle Themen (Echte Artikel)
   await db.insert(articles).values([
