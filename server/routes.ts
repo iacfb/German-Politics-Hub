@@ -215,6 +215,17 @@ export async function registerRoutes(
       `);
 
       await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizresults (
+          id SERIAL PRIMARY KEY,
+          userid TEXT,
+          quizid INTEGER REFERENCES quizzes(id),
+          matchedparty TEXT,
+          partyscores TEXT
+        );
+      `);
+
+
+      await db.execute(sql`
         CREATE TABLE IF NOT EXISTS pollvotes (
           id SERIAL PRIMARY KEY,
           pollid INTEGER REFERENCES polls(id),
