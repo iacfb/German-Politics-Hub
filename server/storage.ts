@@ -56,6 +56,22 @@ export class DatabaseStorage implements IStorage {
     return saved;
   }
 
+  async getMessages(conversationid: number) {
+    return await db.select().from(messages)
+      .where(eq(messages.conversationid, conversationid))
+      .orderBy(desc(messages.createdat));
+  }
+
+  async addMessage(conversationid: number, role: string, content: string) {
+    const [msg] = await db.insert(messages).values({
+      conversationid,
+      role,
+      content
+    }).returning();
+    return msg;
+  }
+
+
   // === Quizzes ===
   async getQuizzes(): Promise<Quiz[]> {
     return await db.select().from(quizzes);

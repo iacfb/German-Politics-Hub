@@ -4,7 +4,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 //import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
-import { registerChatRoutes } from "./replit_integrations/chat";
+
 import { db } from "./db";
 import { quizzes, quizquestions, quizoptions, polls, polloptions, articles } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -18,7 +18,7 @@ export async function registerRoutes(
 //  registerAuthRoutes(app);
 
   // Chat Routes - Updated for CivicChat AI
-  registerChatRoutes(app);
+
 
   // Allow guest chat
   app.get("/api/conversations", async (req, res) => {
@@ -36,6 +36,43 @@ export async function registerRoutes(
     const convo = await storage.createConversation(userid, title || "Neue politische Diskussion", systemPrompt);
     res.json(convo);
   });
+
+  app.get("/api/conversations/:id", async (req, res) => {
+    const id = Number(req.params.id);
+
+    const msgs = await storage.getMessages(id);
+
+    res.json({
+      messages: msgs
+    });
+  });
+
+  app.post("/api/conversations/:id/messages", async (req, res) => {
+    const id = Number(req.params.id);
+    const { content } = req.body;
+
+    // User message speichern
+    await storage.addMessage(id, "user", content);
+
+    // SSE Header setzen
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    // Beispiel-KI-Antwort (später ersetzen)
+    const reply = `Ich habe deine Frage erhalten: "${content}".`;
+
+    // Stream senden
+    res.write(`data: ${JSON.stringify({ content: reply })}\n\n`);
+
+    // KI Nachricht speichern
+    await storage.addMessage(id, "assistant", reply);
+
+    // Stream beenden
+    res.write(`data: [DONE]\n\n`);
+    res.end();
+  });
+
 
   // === Quizzes (Wahl-O-Mat) ===
   app.get(api.quizzes.list.path, async (req, res) => {
@@ -256,6 +293,16 @@ export async function registerRoutes(
           createdat TIMESTAMP DEFAULT NOW()
         );
       `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS messages (
+          id SERIAL PRIMARY KEY,
+          conversationid INTEGER REFERENCES conversations(id),
+          role TEXT,
+          content TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
 
 
       
