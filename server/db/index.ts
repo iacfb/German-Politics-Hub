@@ -1,16 +1,13 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Client } from "pg";
+import { Pool } from "pg";
+import * as schema from "@shared/schema";
 
-// Deine Render-Datenbank-URL
-const connectionString = "postgresql://german_politics_db_user:yBX1zLkw5xgDDDLblP4EDTPtlRSqmPYp@dpg-d6ab3qcr85hc73b7hqeg-a/german_politics_db";
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL must be set.");
+}
 
-// PostgreSQL Client erstellen
-const client = new Client({
-  connectionString,
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
 });
 
-// Verbindung herstellen
-client.connect();
-
-// Drizzle-DB exportieren
-export const db = drizzle(client);
+export const db = drizzle(pool, { schema });

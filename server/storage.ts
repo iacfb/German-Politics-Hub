@@ -9,6 +9,7 @@ import {
   pollvotes,
   articles,
   conversations,
+  messages,
   type Quiz,
   type Quizwithquestions,
   type Quizresult,

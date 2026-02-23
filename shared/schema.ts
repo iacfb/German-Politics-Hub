@@ -3,6 +3,7 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { users } from "./models/auth";
+import { conversations } from "./models/chat";
 
 export * from "./models/auth";
 export * from "./models/chat";
@@ -116,7 +117,17 @@ export const articles = pgTable("articles", {
   createdat: timestamp("createdat").defaultNow(),
 });
 
-// === SCHEMAS ===
+// === MESSAGES ===
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  conversationid: integer("conversationid").references(() => conversations.id),
+  role: text("role"),
+  content: text("content"),
+  createdat: timestamp("createdat").defaultNow()
+});
+
+
+// === SCHEMA//S ===
 export const insertquizresultschema = createInsertSchema(quizresults).omit({ id: true, createdat: true });
 export const insertpollvoteschema = createInsertSchema(pollvotes).omit({ id: true });
 
