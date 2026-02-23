@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertQuizResultSchema, insertPollVoteSchema, quizzes, polls, articles, quizResults } from './schema';
+import { insertQuizResultSchema, insertPollVoteSchema, quizzes, polls, articles, quizresults } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -38,7 +38,7 @@ export const api = {
         answers: z.record(z.string(), z.number()), // questionId -> optionid
       }),
       responses: {
-        200: z.custom<typeof quizResults.$inferSelect>(),
+        200: z.custom<typeof quizresults.$inferSelect>(),
         401: errorSchemas.unauthorized,
       },
     },

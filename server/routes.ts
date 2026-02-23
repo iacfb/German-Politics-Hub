@@ -109,7 +109,6 @@ export async function registerRoutes(
   app.post(api.quizzes.submit.path, async (req, res) => {
     const quizid = Number(req.params.id);
     const { answers } = req.body;
-  //  const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
     const userid = `guest_${req.ip}`;
 
     const quiz = await storage.getQuiz(quizid);
@@ -124,8 +123,6 @@ export async function registerRoutes(
       if (selectedoptionid) {
         const option = q.options.find(o => o.id === selectedoptionid);
         if (option) {
-          // New logic: 2 points for full match, 1 for neutral, 0 for mismatch
-          // Actually, let's keep it simple for now based on partyAffiliation
           const weight = option.text === "Stimme zu" ? 2 : (option.text === "Neutral" ? 1 : 0);
           if (option.partyaffiliation && option.partyaffiliation !== "Neutral") {
              scores[option.partyaffiliation] = (scores[option.partyaffiliation] || 0) + weight;
@@ -134,7 +131,6 @@ export async function registerRoutes(
       }
     }
 
-    // Normalize to percentages
     const totalPossible = quiz.questions.length * 2;
     const finalScores: Record<string, number> = {};
     Object.entries(scores).forEach(([party, score]) => {
@@ -157,7 +153,12 @@ export async function registerRoutes(
       partyscores: finalScores
     });
 
-    res.json(result);
+    // Map to frontend expected casing
+    res.json({
+      ...result,
+      matchedParty: result.matchedparty,
+      partyScores: result.partyscores
+    });
   });
 
   // === Polls (Meinungscheck) ===
