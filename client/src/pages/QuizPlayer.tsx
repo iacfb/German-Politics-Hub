@@ -29,10 +29,10 @@ export default function QuizPlayer() {
   const progress = ((currentQuestionIdx + 1) / questions.length) * 100;
   const isLastQuestion = currentQuestionIdx === questions.length - 1;
 
-  const handleOptionSelect = (optionId: string) => {
+  const handleOptionSelect = (optionid: string) => {
     setAnswers(prev => ({
       ...prev,
-      [currentQuestion.id.toString()]: parseInt(optionId)
+      [currentQuestion.id.toString()]: parseInt(optionid)
     }));
   };
 

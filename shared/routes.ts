@@ -35,7 +35,7 @@ export const api = {
       method: 'POST' as const,
       path: '/api/quizzes/:id/submit',
       input: z.object({
-        answers: z.record(z.string(), z.number()), // questionId -> optionId
+        answers: z.record(z.string(), z.number()), // questionId -> optionid
       }),
       responses: {
         200: z.custom<typeof quizResults.$inferSelect>(),
@@ -55,7 +55,7 @@ export const api = {
       method: 'POST' as const,
       path: '/api/polls/:id/vote',
       input: z.object({
-        optionId: z.number(),
+        optionid: z.number(),
       }),
       responses: {
         200: z.object({ success: z.boolean() }),

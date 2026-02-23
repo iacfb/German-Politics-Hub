@@ -30,7 +30,7 @@ export default function Polls() {
 
         <div className="space-y-6">
           {polls?.map((poll: any) => {
-            const hasVoted = !!poll.userVotedOptionId;
+            const hasVoted = !!poll.uservotedoptionid;
             const totalVotes = poll.options.reduce((acc: number, opt: any) => acc + opt.votes, 0);
 
             return (
@@ -44,7 +44,7 @@ export default function Polls() {
                     <div className="space-y-4">
                       {poll.options.map((option: any) => {
                         const percent = totalVotes === 0 ? 0 : Math.round((option.votes / totalVotes) * 100);
-                        const isUserChoice = poll.userVotedOptionId === option.id;
+                        const isUserChoice = poll.uservotedoptionid === option.id;
                         return (
                           <div key={option.id} className="space-y-1">
                             <div className="flex justify-between text-sm">
@@ -85,7 +85,7 @@ export default function Polls() {
                       ))}
                       <div className="pt-4 flex justify-end">
                         <Button
-                          onClick={() => voteMutation.mutate({ pollId: poll.id, optionId: selectedOptions[poll.id] })}
+                          onClick={() => voteMutation.mutate({ pollid: poll.id, optionid: selectedOptions[poll.id] })}
                           disabled={!selectedOptions[poll.id] || voteMutation.isPending}
                         >
                           {voteMutation.isPending ? "Wird gesendet..." : "Abstimmen"}

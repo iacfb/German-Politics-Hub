@@ -18,12 +18,12 @@ export function useVotePoll() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ pollId, optionId }: { pollId: number; optionId: number }) => {
-      const url = buildUrl(api.polls.vote.path, { id: pollId });
+    mutationFn: async ({ pollid, optionid }: { pollid: number; optionid: number }) => {
+      const url = buildUrl(api.polls.vote.path, { id: pollid });
       const res = await fetch(url, {
         method: api.polls.vote.method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ optionId }),
+        body: JSON.stringify({ optionid }),
         credentials: "include",
       });
 

@@ -63,9 +63,9 @@ export async function registerRoutes(
     parties.forEach(p => scores[p] = 0);
 
     for (const q of quiz.questions) {
-      const selectedOptionId = answers[String(q.id)];
-      if (selectedOptionId) {
-        const option = q.options.find(o => o.id === selectedOptionId);
+      const selectedoptionid = answers[String(q.id)];
+      if (selectedoptionid) {
+        const option = q.options.find(o => o.id === selectedoptionid);
         if (option) {
           // New logic: 2 points for full match, 1 for neutral, 0 for mismatch
           // Actually, let's keep it simple for now based on partyAffiliation

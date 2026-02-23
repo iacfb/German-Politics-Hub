@@ -124,14 +124,14 @@ export class DatabaseStorage implements IStorage {
     return pollsRows.map(poll => {
       const optionsForPoll = optionsRows.filter(o => o.pollid === poll.id);
 
-      let userVotedOptionId: number | undefined = undefined;
+      let uservotedoptionid: number | undefined = undefined;
 
       const optionsWithCounts = optionsForPoll.map(opt => {
         const votesForOption = votesRows.filter(v => v.optionid === opt.id);
 
         if (userid) {
           const userVote = votesForOption.find(v => v.userid === userid);
-          if (userVote) userVotedOptionId = opt.id;
+          if (userVote) uservotedoptionid = opt.id;
         }
 
         return {
@@ -143,7 +143,7 @@ export class DatabaseStorage implements IStorage {
       return {
         ...poll,
         options: optionsWithCounts,
-        uservotedoptionid: userVotedOptionId
+        uservotedoptionid: uservotedoptionid
       };
     });
   }
