@@ -2,8 +2,8 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizz
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users } from "./models/auth";
-import { conversations } from "./models/chat";
+import { users, type User, type InsertUser } from "./models/auth";
+import { conversations, type Conversation, type InsertConversation, messages, type Message, type InsertMessage } from "./models/chat";
 
 export * from "./models/auth";
 export * from "./models/chat";

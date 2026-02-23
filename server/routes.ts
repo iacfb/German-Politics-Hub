@@ -96,7 +96,7 @@ export async function registerRoutes(
     if (!quiz) return res.status(404).json({ message: "Quiz nicht gefunden" });
 
     const scores: Record<string, number> = {};
-    const parties = ["CDU", "GRÜNE", "SPD", "FDP", "AfD", "DIE LINKE", "Freie Wähler", "ÖDP", "Die PARTEI", "Volt", "Tierschutzpartei", "Klimaliste BW"];
+    const parties = ["CDU", "Grüne", "SPD", "FDP", "AfD", "Linke", "Freie Wähler", "ÖDP", "Die PARTEI", "Volt", "Tierschutzpartei", "Klimaliste BW"];
     parties.forEach(p => scores[p] = 0);
 
     for (const q of quiz.questions) {
@@ -133,7 +133,7 @@ export async function registerRoutes(
     const result = await storage.submitQuizResult({
       userid,
       quizid,
-      matchedparty,
+      matchedparty: matchedParty,
       partyscores: finalScores
     });
 

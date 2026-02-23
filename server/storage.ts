@@ -1,23 +1,14 @@
-import { db } from "./db";
-import {
-  quizzes,
-  quizquestions,
-  quizoptions,
-  quizresults,
-  polls,
-  polloptions,
-  pollvotes,
-  articles,
-  conversations,
-  messages,
-  type Quiz,
-  type Quizwithquestions,
-  type Quizresult,
-  type Pollwithdetails,
-  type Article
+import { 
+  users, type User, type InsertUser,
+  quizzes, quizquestions, quizoptions, quizresults,
+  polls, polloptions, pollvotes,
+  articles, messages, conversations,
+  type Quiz, type Quizquestion, type Quizoption, type Quizresult,
+  type Poll, type Polloption, type Article,
+  type Quizwithquestions, type Pollwithdetails
 } from "@shared/schema";
-
-import { eq, sql, inArray, desc } from "drizzle-orm";
+import { db } from "./db/index";
+import { eq, and, sql, desc, inArray } from "drizzle-orm";
 
 export interface IStorage {
   getQuizzes(): Promise<Quiz[]>;
@@ -41,31 +32,31 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(conversations)
-      .where(eq(conversations.userid, userid))
-      .orderBy(desc(conversations.createdat));
+      .where(eq(conversations.userId, userid))
+      .orderBy(desc(conversations.createdAt));
   }
 
   async createConversation(userid: string, title: string, systemprompt?: string): Promise<any> {
     const [saved] = await db
       .insert(conversations)
       .values({
-        userid,
+        userId: userid,
         title,
-        systemprompt: systemprompt || null
+        systemPrompt: systemprompt || null
       })
       .returning();
     return saved;
   }
 
-  async getMessages(conversationid: number) {
+  async getMessages(conversationid: number): Promise<any[]> {
     return await db.select().from(messages)
-      .where(eq(messages.conversationid, conversationid))
-      .orderBy(desc(messages.createdat));
+      .where(eq(messages.conversationId, conversationid))
+      .orderBy(sql`${messages.createdAt} ASC`);
   }
 
-  async addMessage(conversationid: number, role: string, content: string) {
+  async addMessage(conversationid: number, role: string, content: string): Promise<any> {
     const [msg] = await db.insert(messages).values({
-      conversationid,
+      conversationId: conversationid,
       role,
       content
     }).returning();
