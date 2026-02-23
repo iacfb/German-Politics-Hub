@@ -14,7 +14,10 @@ export function useChatStream(conversationId: number | null) {
   const { toast } = useToast();
 
   const sendMessage = useCallback(async (content: string) => {
-    if (!conversationId) return;
+    if (!conversationId) {
+      setError("Keine aktive Konversation.");
+      return;
+    }
 
     setIsStreaming(true);
     setError(null);

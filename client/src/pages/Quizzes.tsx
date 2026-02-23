@@ -35,10 +35,10 @@ export default function Quizzes() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quizzes?.map((quiz) => (
             <Card key={quiz.id} className="flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
-              {quiz.imageUrl && (
+              {quiz.imageurl && (
                 <div className="h-48 overflow-hidden rounded-t-xl">
                   <img 
-                    src={quiz.imageUrl} 
+                    src={quiz.imageurl} 
                     alt={quiz.title} 
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   />

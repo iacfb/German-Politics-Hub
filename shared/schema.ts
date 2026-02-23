@@ -128,8 +128,8 @@ export const messages = pgTable("messages", {
 
 
 // === SCHEMA//S ===
-export const insertquizresultschema = createInsertSchema(quizresults).omit({ id: true, createdat: true });
-export const insertpollvoteschema = createInsertSchema(pollvotes).omit({ id: true });
+export const insertQuizResultSchema = createInsertSchema(quizresults).omit({ id: true, createdat: true });
+export const insertPollVoteSchema = createInsertSchema(pollvotes).omit({ id: true });
 
 export type Quiz = typeof quizzes.$inferSelect;
 export type Quizquestion = typeof quizquestions.$inferSelect;

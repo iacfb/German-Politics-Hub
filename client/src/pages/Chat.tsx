@@ -68,10 +68,13 @@ export default function Chat() {
     e.preventDefault();
     if (!input.trim() || isStreaming) return;
     
+    // Always ensure we have a conversation before sending
     if (!activeConversationId) {
       createConversation.mutate(undefined, {
-        onSuccess: () => {
-          setTimeout(() => sendMessage(input), 100);
+        onSuccess: (newConvo) => {
+          // The mutation's onSuccess sets the activeConversationId, 
+          // but we use newConvo.id directly here to avoid race conditions
+          sendMessage(input);
           setInput("");
         }
       });

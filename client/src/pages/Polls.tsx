@@ -42,7 +42,7 @@ export default function Polls() {
                 <CardContent className="p-6">
                   {hasVoted ? (
                     <div className="space-y-4">
-                      {poll.options.map((option: any) => {
+                      {poll.options && poll.options.map((option: any) => {
                         const percent = totalVotes === 0 ? 0 : Math.round((option.votes / totalVotes) * 100);
                         const isUserChoice = poll.uservotedoptionid === option.id;
                         return (
@@ -71,7 +71,7 @@ export default function Polls() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {poll.options.map((option: any) => (
+                      {poll.options && poll.options.map((option: any) => (
                         <Button
                           key={option.id}
                           variant={selectedOptions[poll.id] === option.id ? "default" : "outline"}

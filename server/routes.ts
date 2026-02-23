@@ -59,14 +59,34 @@ export async function registerRoutes(
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    // Beispiel-KI-Antwort (später ersetzen)
-    const reply = `Ich habe deine Frage erhalten: "${content}".`;
+    try {
+      // Real AI integration via Replit AI
+      const response = await (global as any).replitAI.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "Du bist CivicChat AI, ein politischer Assistent für VoiceUp. Antworte auf Deutsch, neutral und informativ." },
+          { role: "user", content }
+        ],
+        stream: true,
+      });
 
-    // Stream senden
-    res.write(`data: ${JSON.stringify({ content: reply })}\n\n`);
+      let fullReply = "";
+      for await (const chunk of response) {
+        const text = chunk.choices[0]?.delta?.content || "";
+        if (text) {
+          fullReply += text;
+          res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+        }
+      }
 
-    // KI Nachricht speichern
-    await storage.addMessage(id, "assistant", reply);
+      // KI Nachricht speichern
+      await storage.addMessage(id, "assistant", fullReply);
+    } catch (err) {
+      console.error("AI Error:", err);
+      const errorReply = "Entschuldigung, ich habe gerade technische Schwierigkeiten.";
+      res.write(`data: ${JSON.stringify({ content: errorReply })}\n\n`);
+      await storage.addMessage(id, "assistant", errorReply);
+    }
 
     // Stream beenden
     res.write(`data: [DONE]\n\n`);

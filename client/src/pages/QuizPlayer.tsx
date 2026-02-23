@@ -112,7 +112,7 @@ export default function QuizPlayer() {
                   value={answers[currentQuestion.id.toString()]?.toString()}
                   className="space-y-3"
                 >
-                  {currentQuestion.options.map((option: any) => (
+                  {currentQuestion.options && currentQuestion.options.map((option: any) => (
                     <div key={option.id} className="flex items-center space-x-2">
                       <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} className="sr-only" />
                       <Label 
