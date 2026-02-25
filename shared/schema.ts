@@ -15,14 +15,6 @@ export const conversations = pgTable("conversations", {
   createdat: timestamp("createdat").defaultNow()
 });
 
-export const messages = pgTable("messages", {
-  id: serial("id").primaryKey(),
-  conversationid: integer("conversationid").references(() => conversations.id),
-  role: text("role"),
-  content: text("content"),
-  createdat: timestamp("createdat").defaultNow()
-});
-
 
 
 // === QUIZZES ===
