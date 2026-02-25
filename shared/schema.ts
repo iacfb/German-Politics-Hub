@@ -7,6 +7,9 @@ import { conversations, type Conversation, type InsertConversation, messages, ty
 
 export * from "./models/auth";
 export * from "./models/chat";
+export type Message = typeof messages.$inferSelect;
+export type MessageInsert = typeof messages.$inferInsert;
+
 
 // === QUIZZES ===
 export const quizzes = pgTable("quizzes", {
