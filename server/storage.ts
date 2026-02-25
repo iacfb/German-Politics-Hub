@@ -9,6 +9,8 @@ import {
 } from "@shared/schema";
 import { db } from "./db/index";
 import { eq, and, sql, desc, inArray } from "drizzle-orm";
+import { conversations, messages } from "@shared/schema";
+
 
 export interface IStorage {
   getQuizzes(): Promise<Quiz[]>;

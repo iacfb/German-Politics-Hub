@@ -3,12 +3,26 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { users, type User, type UpsertUser as InsertUser } from "./models/auth";
-import { conversations, type Conversation, type InsertConversation, messages, type Message, type InsertMessage } from "./models/chat";
+
 
 export * from "./models/auth";
-export * from "./models/chat";
-export type Message = typeof messages.$inferSelect;
-export type MessageInsert = typeof messages.$inferInsert;
+// === CONVERSATIONS ===
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  userid: text("userid").notNull(),
+  title: text("title").notNull(),
+  systemprompt: text("systemprompt"),
+  createdat: timestamp("createdat").defaultNow()
+});
+
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  conversationid: integer("conversationid").references(() => conversations.id),
+  role: text("role"),
+  content: text("content"),
+  createdat: timestamp("createdat").defaultNow()
+});
+
 
 
 // === QUIZZES ===
