@@ -59,14 +59,14 @@ export default function QuizPlayer() {
             <CheckCircle2 className="w-12 h-12" />
           </motion.div>
           
-          <h1 className="text-4xl font-display font-bold">Ergebnis: {result.matchedParty}</h1>
+          <h1 className="text-4xl font-display font-bold">Ergebnis: {result.matchedParty || result.matchedparty}</h1>
           <p className="text-muted-foreground text-lg">
-            Basierend auf deinen Antworten stimmst du am meisten mit der Partei <strong>{result.matchedParty}</strong> überein.
+            Basierend auf deinen Antworten stimmst du am meisten mit der Partei <strong>{result.matchedParty || result.matchedparty}</strong> überein.
           </p>
           
           <div className="grid gap-4 bg-card p-6 rounded-2xl border shadow-sm text-left">
             <h3 className="font-bold mb-4">Übereinstimmung nach Parteien</h3>
-            {Object.entries(result.partyScores).map(([party, score]: [string, any]) => (
+            {Object.entries(result.partyScores || result.partyscores || {}).map(([party, score]: [string, any]) => (
               <div key={party} className="space-y-1">
                 <div className="flex justify-between text-sm">
                   <span>{party}</span>
@@ -112,7 +112,7 @@ export default function QuizPlayer() {
                   value={answers[currentQuestion.id.toString()]?.toString()}
                   className="space-y-3"
                 >
-                  {currentQuestion.options && currentQuestion.options.map((option: any) => (
+                  {(currentQuestion.options || []).map((option: any) => (
                     <div key={option.id} className="flex items-center space-x-2">
                       <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} className="sr-only" />
                       <Label 
