@@ -1,196 +1,226 @@
-import type { Express } from "express";
-// build trigger 2
-import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { api } from "@shared/routes";
-//import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+  import type { Express } from "express";
+  import { createServer, type Server } from "http";
+  import { storage } from "./storage";
+  import { api } from "@shared/routes";
+  import { db } from "./db";
+  import { quizzes, quizquestions, quizoptions, polls, polloptions, articles } from "@shared/schema";
+  import { eq, sql } from "drizzle-orm";
 
-import { db } from "./db";
-import { quizzes, quizquestions, quizoptions, polls, polloptions, articles } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
-
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-): Promise<Server> {
-  // Auth Setup
- // await setupAuth(app);
-//  registerAuthRoutes(app);
-
-  // Chat Routes - Updated for CivicChat AI
-
-
-  // Allow guest chat
-  app.get("/api/conversations", async (req, res) => {
-//    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userid = `guest_${req.ip}`;
-
-    const data = await storage.getConversations(userid);
-    res.json(data);
+  // GROQ KI EINBINDEN
+  import Groq from "groq-sdk";
+  const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
   });
 
-  app.post("/api/conversations", async (req, res) => {
-//    const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userid = `guest_${req.ip}`;
-    const { title, systemPrompt } = req.body;
-    const convo = await storage.createConversation(userid, title || "Neue politische Diskussion", systemPrompt);
-    res.json(convo);
-  });
+  export async function registerRoutes(
+    httpServer: Server,
+    app: Express
+  ): Promise<Server> {
 
-  app.get("/api/conversations/:id", async (req, res) => {
-    const id = Number(req.params.id);
-
-    const msgs = await storage.getMessages(id);
-
-    res.json({
-      messages: msgs
+    // ============================
+    //   CONVERSATIONS (LIST)
+    // ============================
+    app.get("/api/conversations", async (req, res) => {
+      const userid = `guest_${req.ip}`;
+      const data = await storage.getConversations(userid);
+      res.json(data);
     });
-  });
 
-  app.post("/api/conversations/:id/messages", async (req, res) => {
-    const id = Number(req.params.id);
-    const { content } = req.body;
+    // ============================
+    //   CONVERSATION CREATE
+    // ============================
+    app.post("/api/conversations", async (req, res) => {
+      const userid = `guest_${req.ip}`;
+      const { title, systemPrompt } = req.body;
 
-    // User message speichern
-    await storage.addMessage(id, "user", content);
+      const convo = await storage.createConversation(
+        userid,
+        title || "Neue politische Diskussion",
+        systemPrompt
+      );
 
-    // SSE Header setzen
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
+      res.json(convo);
+    });
 
-    try {
-      // Real AI integration via Replit AI
-      const response = await (global as any).replitAI.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "Du bist CivicChat AI, ein politischer Assistent für VoiceUp. Antworte auf Deutsch, neutral und informativ." },
-          { role: "user", content }
-        ],
-        stream: true,
-      });
+    // ============================
+    //   LOAD MESSAGES
+    // ============================
+    app.get("/api/conversations/:id", async (req, res) => {
+      const id = Number(req.params.id);
+      const msgs = await storage.getMessages(id);
 
-      let fullReply = "";
-      for await (const chunk of response) {
-        const text = chunk.choices[0]?.delta?.content || "";
-        if (text) {
-          fullReply += text;
-          res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+      res.json({ messages: msgs });
+    });
+
+    // ============================
+    //   SEND MESSAGE + STREAM KI
+    // ============================
+    app.post("/api/conversations/:id/messages", async (req, res) => {
+      const id = Number(req.params.id);
+      const { content } = req.body;
+
+      // User message speichern
+      await storage.addMessage(id, "user", content);
+
+      // SSE Header setzen
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      try {
+        // ⭐ GROQ STREAMING
+        const stream = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            {
+              role: "system",
+              content:
+                "Du bist CivicChat AI, ein politischer Assistent für VoiceUp. Antworte auf Deutsch, neutral, faktenbasiert und verständlich."
+            },
+            { role: "user", content }
+          ],
+          stream: true
+        });
+
+        let fullReply = "";
+
+        for await (const chunk of stream) {
+          const text = chunk.choices?.[0]?.delta?.content || "";
+          if (text) {
+            fullReply += text;
+            res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+          }
         }
+
+        // KI Nachricht speichern
+        await storage.addMessage(id, "assistant", fullReply);
+      } catch (err) {
+        console.error("Groq AI Error:", err);
+
+        const fallback = "Entschuldigung, ich habe gerade technische Schwierigkeiten.";
+        res.write(`data: ${JSON.stringify({ content: fallback })}\n\n`);
+
+        await storage.addMessage(id, "assistant", fallback);
       }
 
-      // KI Nachricht speichern
-      await storage.addMessage(id, "assistant", fullReply);
-    } catch (err) {
-      console.error("AI Error:", err);
-      const errorReply = "Entschuldigung, ich habe gerade technische Schwierigkeiten.";
-      res.write(`data: ${JSON.stringify({ content: errorReply })}\n\n`);
-      await storage.addMessage(id, "assistant", errorReply);
-    }
+      res.write(`data: [DONE]\n\n`);
+      res.end();
+    });
 
-    // Stream beenden
-    res.write(`data: [DONE]\n\n`);
-    res.end();
-  });
+    // ============================
+    //   QUIZZES
+    // ============================
+    app.get(api.quizzes.list.path, async (req, res) => {
+      const data = await storage.getQuizzes();
+      res.json(data);
+    });
 
+    app.get(api.quizzes.get.path, async (req, res) => {
+      const data = await storage.getQuiz(Number(req.params.id));
+      if (!data) return res.status(404).json({ message: "Quiz nicht gefunden" });
+      res.json(data);
+    });
 
-  // === Quizzes (Wahl-O-Mat) ===
-  app.get(api.quizzes.list.path, async (req, res) => {
-    const data = await storage.getQuizzes();
-    res.json(data);
-  });
+    app.post(api.quizzes.submit.path, async (req, res) => {
+      const quizid = Number(req.params.id);
+      const { answers } = req.body;
+      const userid = `guest_${req.ip}`;
 
-  app.get(api.quizzes.get.path, async (req, res) => {
-    const data = await storage.getQuiz(Number(req.params.id));
-    if (!data) return res.status(404).json({ message: "Quiz nicht gefunden" });
-    res.json(data);
-  });
+      const quiz = await storage.getQuiz(quizid);
+      if (!quiz) return res.status(404).json({ message: "Quiz nicht gefunden" });
 
-  app.post(api.quizzes.submit.path, async (req, res) => {
-    const quizid = Number(req.params.id);
-    const { answers } = req.body;
-    const userid = `guest_${req.ip}`;
+      const scores: Record<string, number> = {};
+      const parties = [
+        "CDU", "Grüne", "SPD", "FDP", "AfD", "Linke",
+        "Freie Wähler", "ÖDP", "Die PARTEI", "Volt",
+        "Tierschutzpartei", "Klimaliste BW"
+      ];
+      parties.forEach(p => (scores[p] = 0));
 
-    const quiz = await storage.getQuiz(quizid);
-    if (!quiz) return res.status(404).json({ message: "Quiz nicht gefunden" });
+      for (const q of quiz.questions) {
+        const selectedoptionid = answers[String(q.id)];
+        if (selectedoptionid) {
+          const option = q.options.find(o => o.id === selectedoptionid);
+          if (option) {
+            const weight =
+              option.text === "Stimme zu"
+                ? 2
+                : option.text === "Neutral"
+                ? 1
+                : 0;
 
-    const scores: Record<string, number> = {};
-    const parties = ["CDU", "Grüne", "SPD", "FDP", "AfD", "Linke", "Freie Wähler", "ÖDP", "Die PARTEI", "Volt", "Tierschutzpartei", "Klimaliste BW"];
-    parties.forEach(p => scores[p] = 0);
-
-    for (const q of quiz.questions) {
-      const selectedoptionid = answers[String(q.id)];
-      if (selectedoptionid) {
-        const option = q.options.find(o => o.id === selectedoptionid);
-        if (option) {
-          const weight = option.text === "Stimme zu" ? 2 : (option.text === "Neutral" ? 1 : 0);
-          if (option.partyaffiliation && option.partyaffiliation !== "Neutral") {
-             scores[option.partyaffiliation] = (scores[option.partyaffiliation] || 0) + weight;
+            if (option.partyaffiliation && option.partyaffiliation !== "Neutral") {
+              scores[option.partyaffiliation] =
+                (scores[option.partyaffiliation] || 0) + weight;
+            }
           }
         }
       }
-    }
 
-    const totalPossible = quiz.questions.length * 2;
-    const finalScores: Record<string, number> = {};
-    Object.entries(scores).forEach(([party, score]) => {
-      finalScores[party] = Math.round((score / totalPossible) * 100);
+      const totalPossible = quiz.questions.length * 2;
+      const finalScores: Record<string, number> = {};
+
+      Object.entries(scores).forEach(([party, score]) => {
+        finalScores[party] = Math.round((score / totalPossible) * 100);
+      });
+
+      let maxScore = 0;
+      let matchedParty = "Neutral";
+
+      Object.entries(finalScores).forEach(([party, score]) => {
+        if (score > maxScore) {
+          maxScore = score;
+          matchedParty = party;
+        }
+      });
+
+      const result = await storage.submitQuizResult({
+        userid,
+        quizid,
+        matchedparty: matchedParty,
+        partyscores: finalScores
+      });
+
+      res.json({
+        ...result,
+        matchedParty: result.matchedparty,
+        partyScores: result.partyscores
+      });
     });
 
-    let maxScore = 0;
-    let matchedParty = "Neutral";
-    Object.entries(finalScores).forEach(([party, score]) => {
-      if (score > maxScore) {
-        maxScore = score;
-        matchedParty = party;
+    // ============================
+    //   POLLS
+    // ============================
+    app.get(api.polls.list.path, async (req, res) => {
+      const userid = `guest_${req.ip}`;
+      const data = await storage.getPolls(userid);
+      res.json(data);
+    });
+
+    app.post(api.polls.vote.path, async (req, res) => {
+      const pollid = Number(req.params.id);
+      const { optionid } = req.body;
+      const userid = `guest_${req.ip}`;
+
+      const hasVoted = await storage.hasVoted(pollid, userid);
+      if (hasVoted) {
+        return res.status(400).json({ message: "Bereits abgestimmt" });
       }
+
+      await storage.votePoll(pollid, optionid, userid);
+      res.json({ success: true });
     });
 
-    const result = await storage.submitQuizResult({
-      userid,
-      quizid,
-      matchedparty: matchedParty,
-      partyscores: finalScores
+    // ============================
+    //   ARTICLES
+    // ============================
+    app.get(api.articles.list.path, async (req, res) => {
+      const data = await storage.getArticles();
+      res.json(data);
     });
 
-    // Map to frontend expected casing
-    res.json({
-      ...result,
-      matchedParty: result.matchedparty,
-      partyScores: result.partyscores
-    });
-  });
-
-  // === Polls (Meinungscheck) ===
-  app.get(api.polls.list.path, async (req, res) => {
-  //  const userid = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userid = `guest_${req.ip}`;
-
-    const data = await storage.getPolls(userid);
-    res.json(data);
-  });
-
-  app.post(api.polls.vote.path, async (req, res) => {
-    const pollid = Number(req.params.id);
-    const { optionid } = req.body;
-   // const userId = req.isAuthenticated() ? (req.user as any).claims.sub : `guest_${req.ip}`;
-    const userid = `guest_${req.ip}`;
-
-
-    const hasVoted = await storage.hasVoted(pollid, userid);
-    if (hasVoted) {
-      return res.status(400).json({ message: "Bereits abgestimmt" });
-    }
-
-    await storage.votePoll(pollid, optionid, userid);
-    res.json({ success: true });
-  });
-
-  // === Articles ===
-  app.get(api.articles.list.path, async (req, res) => {
-    const data = await storage.getArticles();
-    res.json(data);
-  });
+    return httpServer;
+  }
 
   // Re-seed with German data if empty or forced
  // const existingQuizzes = await storage.getQuizzes();
