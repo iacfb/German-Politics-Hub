@@ -67,7 +67,7 @@
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      try {
+     
         // ⭐ GROQ STREAMING
     // systemPrompt aus der Datenbank laden
     const conversation = await storage.getConversation(id);
