@@ -67,50 +67,45 @@
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-     
+      try {
         // ⭐ GROQ STREAMING
-    // systemPrompt aus der Datenbank laden
-    const conversation = await storage.getConversation(id);
+        const stream = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            {
+              role: "system",
+              content:
+                "Du bist CivicChat AI, ein politischer Assistent für VoiceUp. Antworte auf Deutsch, neutral, faktenbasiert und verständlich."
+            },
+            { role: "user", content }
+          ],
+          stream: true
+        });
 
-    const systemPrompt =
-      conversation?.systemprompt ||
-      "Du bist CivicChat AI, ein politischer Assistent für VoiceUp. Antworte auf Deutsch, neutral, faktenbasiert und verständlich.";
+        let fullReply = "";
 
-    try {
-      const stream = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          { role: "user", content }
-        ],
-        stream: true
-      });
-
-      let fullReply = "";
-
-      for await (const chunk of stream) {
-        const text = chunk.choices?.[0]?.delta?.content || "";
-        if (text) {
-          fullReply += text;
-          res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+        for await (const chunk of stream) {
+          const text = chunk.choices?.[0]?.delta?.content || "";
+          if (text) {
+            fullReply += text;
+            res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+          }
         }
+
+        // KI Nachricht speichern
+        await storage.addMessage(id, "assistant", fullReply);
+      } catch (err) {
+        console.error("Groq AI Error:", err);
+
+        const fallback = "Entschuldigung, ich habe gerade technische Schwierigkeiten.";
+        res.write(`data: ${JSON.stringify({ content: fallback })}\n\n`);
+
+        await storage.addMessage(id, "assistant", fallback);
       }
 
-      await storage.addMessage(id, "assistant", fullReply);
-    } catch (err) {
-      console.error("Groq AI Error:", err);
-
-      const fallback = "Entschuldigung, ich habe gerade technische Schwierigkeiten.";
-      res.write(`data: ${JSON.stringify({ content: fallback })}\n\n`);
-
-      await storage.addMessage(id, "assistant", fallback);
-    }
-
-    res.write(`data: [DONE]\n\n`);
-    res.end();
+      res.write(`data: [DONE]\n\n`);
+      res.end();
+    });
 
     // ============================
     //   QUIZZES
