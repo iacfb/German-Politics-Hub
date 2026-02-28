@@ -219,18 +219,9 @@
       res.json(data);
     });
 
-    return httpServer;
-  }
-
-  // Re-seed with German data if empty or forced
- // const existingQuizzes = await storage.getQuizzes();
-  //if (existingQuizzes.length <= 1) { // Force re-seed to ensure all requested data is present
-  //  await seedDatabase();
-  //}
-  // force new build
-
-  // build trigger 13
-  // === Admin: Seed Database ===
+    // ============================
+    //   ADMIN ROUTES
+    // ============================
   app.post("/admin/seed", async (req, res) => {
     try {
       await seedDatabase();
@@ -364,9 +355,6 @@
       res.status(500).json({ ok: false, error: String(err) });
     }
   });
-
-
-
 
   return httpServer;
 }
