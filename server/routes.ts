@@ -7,10 +7,9 @@
   import { eq, sql } from "drizzle-orm";
 
   // GROQ KI EINBINDEN
-  import OpenAI from "openai";
-  const groq = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1"
+  import Groq from "groq-sdk";
+  const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
   });
 
   export async function registerRoutes(
@@ -94,7 +93,7 @@
 
         let fullReply = "";
 
-        for await (const chunk of (stream as any)) {
+        for await (const chunk of stream) {
           const text = chunk.choices?.[0]?.delta?.content || "";
           if (text) {
             fullReply += text;
