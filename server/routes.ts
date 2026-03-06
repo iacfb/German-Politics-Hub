@@ -69,22 +69,25 @@
 
       try {
         // ⭐ GROQ STREAMING
-        // systemPrompt aus der Datenbank laden
         const conversation = await storage.getConversation(id);
+        const history = await storage.getMessages(id);
 
         const systemPrompt =
           conversation?.systemprompt ||
           "Du bist CivicChat AI, ein politischer Assistent für VoiceUp. Antworte auf Deutsch, neutral, faktenbasiert und verständlich.";
 
+        // Den gesamten Verlauf mitsenden, damit die KI den Kontext (z.B. Politiker-Persona) behält
+        const chatMessages = [
+          { role: "system", content: systemPrompt },
+          ...history.map(m => ({
+            role: m.role as "user" | "assistant",
+            content: m.content
+          }))
+        ];
+
         const stream = await groq.chat.completions.create({
           model: "llama-3.3-70b-versatile",
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            { role: "user", content }
-          ],
+          messages: chatMessages,
           stream: true
         });
 
@@ -103,13 +106,12 @@
 
       } catch (err) {
         console.error("Groq AI Error:", err);
-
         const fallback = "Entschuldigung, ich habe gerade technische Schwierigkeiten.";
         res.write(`data: ${JSON.stringify({ content: fallback })}\n\n`);
-
         await storage.addMessage(id, "assistant", fallback);
       }
 
+      res.write(`data: {"done": true}\n\n`);
       res.end();
     });
 
