@@ -229,7 +229,156 @@
     });
 
     // ============================
-   
+    //   ADMIN ROUTES
+    // ============================
+  app.post("/admin/seed", async (req, res) => {
+    try {
+      await seedDatabase();
+      res.json({ ok: true, message: "Database seeded successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ ok: false, error: String(err) });
+    }
+  });
+
+  // === Admin: Create Tables (for Render PostgreSQL) ===
+  app.post("/admin/init-db", async (req, res) => {
+    try {
+
+      //  GANZ OBEN: Alte Tabellen löschen, damit Render sie neu erstellt
+      await db.execute(sql`DROP TABLE IF EXISTS pollvotes CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS polloptions CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS polls CASCADE;`);
+
+      await db.execute(sql`DROP TABLE IF EXISTS quizoptions CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS quizquestions CASCADE;`);
+      await db.execute(sql`DROP TABLE IF EXISTS quizzes CASCADE;`);
+
+      await db.execute(sql`DROP TABLE IF EXISTS articles CASCADE;`);
+
+      // Danach: Tabellen NEU erstellen
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizzes (
+          id SERIAL PRIMARY KEY,
+          title TEXT,
+          description TEXT,
+          category TEXT,
+          imageurl TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizquestions (
+          id SERIAL PRIMARY KEY,
+          quizid INTEGER REFERENCES quizzes(id),
+          text TEXT
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizoptions (
+          id SERIAL PRIMARY KEY,
+          questionid INTEGER REFERENCES quizquestions(id),
+          text TEXT,
+          partyaffiliation TEXT
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS polls (
+          id SERIAL PRIMARY KEY,
+          question TEXT,
+          description TEXT,
+         createdat TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS polloptions (
+          id SERIAL PRIMARY KEY,
+          pollid INTEGER REFERENCES polls(id),
+          text TEXT
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS quizresults (
+          id SERIAL PRIMARY KEY,
+          userid TEXT,
+          quizid INTEGER REFERENCES quizzes(id),
+          matchedparty TEXT,
+          partyscores TEXT
+        );
+      `);
+
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS pollvotes (
+          id SERIAL PRIMARY KEY,
+          pollid INTEGER REFERENCES polls(id),
+          optionid INTEGER REFERENCES polloptions(id),
+          userid TEXT
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS articles (
+          id SERIAL PRIMARY KEY,
+          title TEXT,
+          summary TEXT,
+          content TEXT,
+          type TEXT,
+          source TEXT,
+          sourceurl TEXT,
+          imageurl TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
+        );
+      `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS conversations (
+          id SERIAL PRIMARY KEY,
+          userid TEXT,
+          title TEXT,
+          systemprompt TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
+        );
+      `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS messages (
+          id SERIAL PRIMARY KEY,
+          conversationid INTEGER REFERENCES conversations(id),
+          role TEXT,
+          content TEXT,
+          createdat TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+
+
+      
+      res.json({ ok: true, message: "Tables created correctly" });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ ok: false, error: String(err) });
+    }
+  });
+
+  return httpServer;
+}
+
+async function seedDatabase() {
+  console.log("Seeding database with German content...")};
+  
+  // Clear old data to avoid duplicates with old names
+  await db.delete(quizoptions);
+  await db.delete(quizquestions);
+  await db.delete(quizzes);
+  await db.delete(polloptions);
+  await db.delete(polls);
+  await db.delete(articles);
+
   // Wahl-O-Mat Quizzes
   const quizConfigs = [
     {
