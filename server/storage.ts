@@ -49,6 +49,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return saved;
   }
+
   async getConversation(id: number): Promise<any> {
     const [convo] = await db
       .select()

@@ -104,16 +104,17 @@
         // KI Nachricht speichern
         await storage.addMessage(id, "assistant", fullReply);
 
-      } catch (err) {
-        console.error("Groq AI Error:", err);
-        const fallback = "Entschuldigung, ich habe gerade technische Schwierigkeiten.";
-        res.write(`data: ${JSON.stringify({ content: fallback })}\n\n`);
-        await storage.addMessage(id, "assistant", fallback);
-      }
+    } catch (err: any) {
+      console.error("Groq AI Error:", err);
 
-      res.write(`data: {"done": true}\n\n`);
-      res.end();
-    });
+      const fallback =
+        "Entschuldigung, ich habe gerade technische Schwierigkeiten. Technischer Fehler: " +
+        (err?.message || JSON.stringify(err));
+
+      res.write(`data: ${JSON.stringify({ content: fallback })}\n\n`);
+      await storage.addMessage(id, "assistant", fallback);
+    }
+
 
     // ============================
     //   QUIZZES
