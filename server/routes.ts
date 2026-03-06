@@ -31,12 +31,12 @@
     // ============================
     app.post("/api/conversations", async (req, res) => {
       const userid = `guest_${req.ip}`;
-      const { title, systemPrompt } = req.body;
+      const { title, systemprompt } = req.body;
 
       const convo = await storage.createConversation(
         userid,
         title || "Neue politische Diskussion",
-        systemPrompt
+        systemprompt
       );
 
       res.json(convo);
@@ -72,13 +72,13 @@
         const conversation = await storage.getConversation(id);
         const history = await storage.getMessages(id);
 
-        const systemPrompt =
+        const systemprompt =
           conversation?.systemprompt ||
           "Du bist CivicChat AI, ein politischer Assistent für VoiceUp. Antworte auf Deutsch, neutral, faktenbasiert und verständlich.";
 
         // Den gesamten Verlauf mitsenden, damit die KI den Kontext (z.B. Politiker-Persona) behält
         const chatMessages = [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: systemprompt },
           ...history.map(m => ({
             role: m.role as "user" | "assistant",
             content: m.content

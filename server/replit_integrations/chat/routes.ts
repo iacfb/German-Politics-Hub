@@ -39,13 +39,13 @@ export function registerChatRoutes(app: Express): void {
 
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
-      const { title, systemPrompt } = req.body;
+      const { title, systemprompt } = req.body;
       const userId = `guest_${req.ip}`;
 
       const conversation = await chatStorage.createConversation(
         title || "Neue politische Diskussion",
         userId,
-        systemPrompt
+        systemprompt
       );
 
       res.status(201).json(conversation);
@@ -82,10 +82,10 @@ export function registerChatRoutes(app: Express): void {
 
       const chatMessages: any[] = [];
 
-      if (conversation.systemPrompt) {
+      if (conversation.systemprompt) {
         chatMessages.push({
           role: "system",
-          content: String(conversation.systemPrompt)
+          content: String(conversation.systemprompt)
         });
       }
 

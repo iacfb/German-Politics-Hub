@@ -5,7 +5,7 @@ import { eq, desc } from "drizzle-orm";
 export interface IChatStorage {
   getConversation(id: number): Promise<typeof conversations.$inferSelect | undefined>;
   getAllConversations(): Promise<(typeof conversations.$inferSelect)[]>;
-  createConversation(title: string, userId: string, systemPrompt?: string): Promise<typeof conversations.$inferSelect>;
+  createConversation(title: string, userId: string, systemprompt?: string): Promise<typeof conversations.$inferSelect>;
   deleteConversation(id: number): Promise<void>;
   getMessagesByConversation(conversationId: number): Promise<(typeof messages.$inferSelect)[]>;
   createMessage(conversationId: number, role: string, content: string): Promise<typeof messages.$inferSelect>;
@@ -28,13 +28,13 @@ export const chatStorage: IChatStorage = {
     // createdAt bleibt camelCase, weil deine Tabelle camelCase ist
   },
 
-  async createConversation(title: string, userId: string, systemPrompt?: string) {
+  async createConversation(title: string, userId: string, systemprompt?: string) {
     const [conversation] = await db
       .insert(conversations)
       .values({
         title,
         userId,               // bleibt camelCase (so heißt die Spalte in deiner DB!)
-        systemPrompt: systemPrompt || null // bleibt camelCase
+        systemprompt: systemprompt || null // bleibt camelCase
       })
       .returning();
     return conversation;

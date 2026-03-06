@@ -9,7 +9,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db/index";
 import { eq, and, sql, desc, inArray } from "drizzle-orm";
-import { conversations, messages } from "@shared/schema";
+//import { conversations, messages } from "@shared/schema";
 
 
 export interface IStorage {
@@ -44,7 +44,7 @@ export class DatabaseStorage implements IStorage {
       .values({
         userId: userid,
         title,
-        systemPrompt: systemprompt || null
+        systemprompt: systemprompt || null
       })
       .returning();
     return saved;
