@@ -577,6 +577,25 @@ async function seedDatabase() {
     }
   }
 
+  // Fake Votes erzeugen, damit es aussieht, als hätten Leute abgestimmt
+  for (const poll of await db.select().from(polls)) {
+    const options = await db.select().from(polloptions).where(eq(polloptions.pollid, poll.id));
+
+    for (const opt of options) {
+      // Zufällige Stimmenzahl zwischen 5 und 50
+      const fakeVotes = Math.floor(Math.random() * 45) + 5;
+
+      for (let i = 0; i < fakeVotes; i++) {
+        await db.insert(pollvotes).values({
+          pollid: poll.id,
+          optionid: opt.id,
+          userid: "fake_user_" + poll.id + "_" + opt.id + "_" + i
+        });
+      }
+    }
+  }
+
+
 
   // Aktuelle Themen (Echte Artikel)
   await db.insert(articles).values([
