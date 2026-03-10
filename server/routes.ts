@@ -362,7 +362,7 @@
 
     return httpServer;
   }
-}
+
 async function seedDatabase() {
   console.log("Seeding database with German content...");
   
