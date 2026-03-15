@@ -34,15 +34,15 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(conversations)
-      .where(eq(conversations.userId, userid))
-      .orderBy(desc(conversations.createdAt));
+      .where(eq(conversations.userid, userid))
+      .orderBy(desc(conversations.createdat));
   }
 
   async createConversation(userid: string, title: string, systemprompt?: string): Promise<any> {
     const [saved] = await db
       .insert(conversations)
       .values({
-        userId: userid,
+        userid: userid,
         title,
         systemprompt: systemprompt || null
       })
@@ -60,13 +60,13 @@ export class DatabaseStorage implements IStorage {
 
   async getMessages(conversationid: number): Promise<any[]> {
     return await db.select().from(messages)
-      .where(eq(messages.conversationId, conversationid))
-      .orderBy(sql`${messages.createdAt} ASC`);
+      .where(eq(messages.conversationid, conversationid))
+      .orderBy(sql`${messages.createdat} ASC`);
   }
 
   async addMessage(conversationid: number, role: string, content: string): Promise<any> {
     const [msg] = await db.insert(messages).values({
-      conversationId: conversationid,
+      conversationid: conversationid,
       role,
       content
     }).returning();
