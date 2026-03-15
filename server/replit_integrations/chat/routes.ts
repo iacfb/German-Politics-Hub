@@ -40,11 +40,11 @@ export function registerChatRoutes(app: Express): void {
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       const { title, systemprompt } = req.body;
-      const userId = `guest_${req.ip}`;
+      const userid = `guest_${req.ip}`;
 
       const conversation = await chatStorage.createConversation(
         title || "Neue politische Diskussion",
-        userId,
+        userid,
         systemprompt
       );
 
