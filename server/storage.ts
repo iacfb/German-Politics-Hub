@@ -183,7 +183,13 @@ export class DatabaseStorage implements IStorage {
     const [vote] = await db
       .select()
       .from(pollvotes)
-      .where(sql`${pollvotes.pollid} = ${pollid} AND ${pollvotes.userid} = ${userid}`);
+    .where(
+      and(
+        eq(pollvotes.pollid, pollid),
+        eq(pollvotes.userid, userid)
+      )
+    );
+
     return !!vote;
   }
 
