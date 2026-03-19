@@ -75,7 +75,7 @@ export default function Dashboard() {
             <Card className="h-full border-l-4 border-l-black hover:shadow-lg transition-all duration-300 overflow-hidden group">
               <div className="h-48 overflow-hidden relative">
                 <img 
-                  src="https://copilot.microsoft.com/th/id/BCO.0f3c19a1-dd3d-42ec-9420-939270a672b4.png" 
+                  src= "https://copilot.microsoft.com/th/id/BCO.0f3c19a1-dd3d-42ec-9420-939270a672b4.png" 
                   alt="Wahlkompass" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
