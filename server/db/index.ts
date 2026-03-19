@@ -2,15 +2,21 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "@shared/schema";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL must be set.");
+// Bevorzuge Replit-eigene PostgreSQL-Variablen (PGHOST), falls gesetzt.
+// Falls nur DATABASE_URL gesetzt ist, diese verwenden.
+const connectionString =
+  process.env.PGHOST
+    ? `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT ?? "5432"}/${process.env.PGDATABASE}`
+    : process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("Keine Datenbankverbindung konfiguriert (weder PGHOST noch DATABASE_URL gesetzt).");
 }
 
-// Ensure the connection string is correctly formatted for the local Replit environment
-const connectionString = process.env.DATABASE_URL;
+export const pool = new Pool({ connectionString });
 
-export const pool = new Pool({
-  connectionString,
+pool.on("error", (err) => {
+  console.error("[DB] Verbindungsfehler:", err.message);
 });
 
 export const db = drizzle(pool, { schema });
