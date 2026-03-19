@@ -77,7 +77,7 @@ export default function Debate() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         title: `Debatte mit ${politician.name}`,
-        systemPrompt: politician.persona 
+        systemprompt: politician.persona 
       }),
     });
     const convo = await res.json();
