@@ -224,7 +224,7 @@
     });
 
     // ============================
-    //   ARTICLES
+    //   ARTICLESm
     // ============================
     app.get(api.articles.list.path, async (req, res) => {
       const data = await storage.getArticles();
