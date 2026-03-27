@@ -2,9 +2,7 @@
   import { createServer, type Server } from "http";
   import { storage } from "./storage";
   import { api } from "@shared/routes";
-  import { db } from "./db";
-  import { quizzes, quizquestions, quizoptions, polls, polloptions, articles } from "@shared/schema";
-  import { eq, sql } from "drizzle-orm";
+  import { supabase } from "./supabase-client";
 
   // GROQ KI EINBINDEN
   import Groq from "groq-sdk";
@@ -244,120 +242,92 @@
       }
     });
 
-    // === Admin: Create Tables (for Render PostgreSQL) ===
-    app.post("/admin/init-db", async (req, res) => {
-      try {
-        await db.execute(sql`DROP TABLE IF EXISTS pollvotes CASCADE;`);
-        await db.execute(sql`DROP TABLE IF EXISTS polloptions CASCADE;`);
-        await db.execute(sql`DROP TABLE IF EXISTS polls CASCADE;`);
-        await db.execute(sql`DROP TABLE IF EXISTS quizoptions CASCADE;`);
-        await db.execute(sql`DROP TABLE IF EXISTS quizquestions CASCADE;`);
-        await db.execute(sql`DROP TABLE IF EXISTS quizzes CASCADE;`);
-        await db.execute(sql`DROP TABLE IF EXISTS articles CASCADE;`);
+    // Returns the SQL script needed to set up tables in Supabase SQL Editor
+    app.get("/admin/setup-sql", (_req, res) => {
+      const sql = `
+-- VoiceUp Supabase Setup SQL
+-- Run this once in your Supabase SQL Editor (https://supabase.com/dashboard → SQL Editor)
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS quizzes (
-            id SERIAL PRIMARY KEY,
-            title TEXT,
-            description TEXT,
-            category TEXT,
-            imageurl TEXT,
-            createdat TIMESTAMP DEFAULT NOW()
-          );
-        `);
+CREATE TABLE IF NOT EXISTS quizzes (
+  id SERIAL PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  category TEXT,
+  imageurl TEXT,
+  createdat TIMESTAMP DEFAULT NOW()
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS quizquestions (
-            id SERIAL PRIMARY KEY,
-            quizid INTEGER REFERENCES quizzes(id),
-            text TEXT
-          );
-        `);
+CREATE TABLE IF NOT EXISTS quizquestions (
+  id SERIAL PRIMARY KEY,
+  quizid INTEGER REFERENCES quizzes(id) ON DELETE CASCADE,
+  text TEXT
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS quizoptions (
-            id SERIAL PRIMARY KEY,
-            questionid INTEGER REFERENCES quizquestions(id),
-            text TEXT,
-            partyaffiliation TEXT
-          );
-        `);
+CREATE TABLE IF NOT EXISTS quizoptions (
+  id SERIAL PRIMARY KEY,
+  questionid INTEGER REFERENCES quizquestions(id) ON DELETE CASCADE,
+  text TEXT,
+  partyaffiliation TEXT
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS polls (
-            id SERIAL PRIMARY KEY,
-            question TEXT,
-            description TEXT,
-            createdat TIMESTAMP DEFAULT NOW()
-          );
-        `);
+CREATE TABLE IF NOT EXISTS quizresults (
+  id SERIAL PRIMARY KEY,
+  userid TEXT,
+  quizid INTEGER REFERENCES quizzes(id) ON DELETE CASCADE,
+  matchedparty TEXT,
+  partyscores JSONB
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS polloptions (
-            id SERIAL PRIMARY KEY,
-            pollid INTEGER REFERENCES polls(id),
-            text TEXT
-          );
-        `);
+CREATE TABLE IF NOT EXISTS polls (
+  id SERIAL PRIMARY KEY,
+  question TEXT,
+  description TEXT,
+  createdat TIMESTAMP DEFAULT NOW()
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS quizresults (
-            id SERIAL PRIMARY KEY,
-            userid TEXT,
-            quizid INTEGER REFERENCES quizzes(id),
-            matchedparty TEXT,
-            partyscores TEXT
-          );
-        `);
+CREATE TABLE IF NOT EXISTS polloptions (
+  id SERIAL PRIMARY KEY,
+  pollid INTEGER REFERENCES polls(id) ON DELETE CASCADE,
+  text TEXT
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS pollvotes (
-            id SERIAL PRIMARY KEY,
-            pollid INTEGER REFERENCES polls(id),
-            optionid INTEGER REFERENCES polloptions(id),
-            userid TEXT
-          );
-        `);
+CREATE TABLE IF NOT EXISTS pollvotes (
+  id SERIAL PRIMARY KEY,
+  pollid INTEGER REFERENCES polls(id) ON DELETE CASCADE,
+  optionid INTEGER REFERENCES polloptions(id) ON DELETE CASCADE,
+  userid TEXT
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS articles (
-            id SERIAL PRIMARY KEY,
-            title TEXT,
-            summary TEXT,
-            content TEXT,
-            type TEXT,
-            source TEXT,
-            sourceurl TEXT,
-            imageurl TEXT,
-            createdat TIMESTAMP DEFAULT NOW()
-          );
-        `);
+CREATE TABLE IF NOT EXISTS articles (
+  id SERIAL PRIMARY KEY,
+  title TEXT,
+  summary TEXT,
+  content TEXT,
+  type TEXT,
+  source TEXT,
+  sourceurl TEXT UNIQUE,
+  imageurl TEXT,
+  createdat TIMESTAMP DEFAULT NOW()
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS conversations (
-            id SERIAL PRIMARY KEY,
-            userid TEXT,
-            title TEXT,
-            systemprompt TEXT,
-            createdat TIMESTAMP DEFAULT NOW()
-          );
-        `);
+CREATE TABLE IF NOT EXISTS conversations (
+  id SERIAL PRIMARY KEY,
+  userid TEXT,
+  title TEXT,
+  systemprompt TEXT,
+  createdat TIMESTAMP DEFAULT NOW()
+);
 
-        await db.execute(sql`
-          CREATE TABLE IF NOT EXISTS messages (
-            id SERIAL PRIMARY KEY,
-            conversationid INTEGER REFERENCES conversations(id),
-            role TEXT,
-            content TEXT,
-            createdat TIMESTAMP DEFAULT NOW()
-          );
-        `);
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  conversationid INTEGER REFERENCES conversations(id) ON DELETE CASCADE,
+  role TEXT,
+  content TEXT,
+  createdat TIMESTAMP DEFAULT NOW()
+);
+      `.trim();
 
-        res.json({ ok: true, message: "Tables created correctly" });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ ok: false, error: String(err) });
-      }
+      res.type("text/plain").send(sql);
     });
 
     return httpServer;
@@ -365,14 +335,16 @@
 
 async function seedDatabase() {
   console.log("Seeding database with German content...");
-  
-  // Clear old data to avoid duplicates with old names
-  await db.delete(quizoptions);
-  await db.delete(quizquestions);
-  await db.delete(quizzes);
-  await db.delete(polloptions);
-  await db.delete(polls);
-  await db.delete(articles);
+
+  // Clear old data to avoid duplicates
+  await supabase.from("quizoptions").delete().neq("id", 0);
+  await supabase.from("quizquestions").delete().neq("id", 0);
+  await supabase.from("quizresults").delete().neq("id", 0);
+  await supabase.from("quizzes").delete().neq("id", 0);
+  await supabase.from("pollvotes").delete().neq("id", 0);
+  await supabase.from("polloptions").delete().neq("id", 0);
+  await supabase.from("polls").delete().neq("id", 0);
+  await supabase.from("articles").delete().neq("id", 0);
 
   // Wahl-O-Mat Quizzes
   const quizConfigs = [
@@ -494,25 +466,26 @@ async function seedDatabase() {
   ];
 
   for (const config of quizConfigs) {
-    const [quiz] = await db.insert(quizzes).values({
-      title: config.title,
-      description: config.description,
-      category: config.category,
-      imageurl: config.imageurl
-    }).returning();
+    const { data: quiz, error: qErr } = await supabase
+      .from("quizzes")
+      .insert({ title: config.title, description: config.description, category: config.category, imageurl: config.imageurl })
+      .select()
+      .single();
+    if (qErr) throw new Error("Quiz insert: " + qErr.message);
 
     for (const q of config.questions) {
-      const [question] = await db.insert(quizquestions).values({
-        quizid: quiz.id,
-        text: q.text
-      }).returning();
+      const { data: question, error: qqErr } = await supabase
+        .from("quizquestions")
+        .insert({ quizid: quiz.id, text: q.text })
+        .select()
+        .single();
+      if (qqErr) throw new Error("Question insert: " + qqErr.message);
 
       for (const o of q.options) {
-        await db.insert(quizoptions).values({
-          questionid: question.id,
-          text: o.text,
-          partyaffiliation: o.party
-        });
+        const { error: oErr } = await supabase
+          .from("quizoptions")
+          .insert({ questionid: question.id, text: o.text, partyaffiliation: o.party });
+        if (oErr) throw new Error("Option insert: " + oErr.message);
       }
     }
   }
@@ -561,27 +534,25 @@ async function seedDatabase() {
     }
   ];
   
-  // HIER kommt der neue Code rein:
-
   for (const p of pollData) {
-    const [savedPoll] = await db.insert(polls).values({
-      question: p.question,
-      description: null
-    }).returning();
+    const { data: savedPoll, error: pErr } = await supabase
+      .from("polls")
+      .insert({ question: p.question, description: null })
+      .select()
+      .single();
+    if (pErr) throw new Error("Poll insert: " + pErr.message);
 
     for (const opt of p.options) {
-      await db.insert(polloptions).values({
-        pollid: savedPoll.id,
-        text: opt
-      });
+      const { error: poErr } = await supabase
+        .from("polloptions")
+        .insert({ pollid: savedPoll.id, text: opt });
+      if (poErr) throw new Error("PollOption insert: " + poErr.message);
     }
   }
 
-  
-
 
   // Aktuelle Themen (Echte Artikel)
-  await db.insert(articles).values([
+  const { error: artErr } = await supabase.from("articles").insert([
     {
       title: "Vorstoß der SPD: TikTok und Instagram erst ab 14 Jahren",
       summary: "Die SPD fordert strengere Altersgrenzen für soziale Medien, um Kinder und Jugendliche besser vor schädlichen Inhalten zu schützen.",
@@ -628,6 +599,7 @@ async function seedDatabase() {
       imageurl: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WsnaR.img"
     }
   ]);
+  if (artErr) throw new Error("Articles insert: " + artErr.message);
 
   console.log("Seeding complete.");
 }

@@ -1,16 +1,9 @@
-import { 
-  users, type User, type InsertUser,
-  quizzes, quizquestions, quizoptions, quizresults,
-  polls, polloptions, pollvotes,
-  articles, messages, conversations,
-  type Quiz, type Quizquestion, type Quizoption, type Quizresult,
-  type Poll, type Polloption, type Article,
-  type Quizwithquestions, type Pollwithdetails
+import { supabase } from "./supabase-client";
+import type {
+  Quiz, Quizquestion, Quizoption, Quizresult,
+  Poll, Polloption, Article,
+  Quizwithquestions, Pollwithdetails
 } from "@shared/schema";
-import { db } from "./db/index";
-import { eq, and, sql, desc, inArray } from "drizzle-orm";
-//import { conversations, messages } from "@shared/schema";
-
 
 export interface IStorage {
   getQuizzes(): Promise<Quiz[]>;
@@ -23,182 +16,241 @@ export interface IStorage {
 
   getConversations(userid: string): Promise<any[]>;
   createConversation(userid: string, title: string, systemprompt?: string): Promise<any>;
+  getConversation(id: number): Promise<any>;
+  getMessages(conversationid: number): Promise<any[]>;
+  addMessage(conversationid: number, role: string, content: string): Promise<any>;
 
   getArticles(): Promise<Article[]>;
+  addArticle(article: {
+    title: string;
+    summary?: string | null;
+    content: string;
+    type: string;
+    source?: string | null;
+    sourceurl?: string | null;
+    imageurl?: string | null;
+  }): Promise<Article>;
+  articleExists(sourceurl: string): Promise<boolean>;
+}
+
+function supaErr(label: string, error: any): never {
+  throw new Error(`[Supabase ${label}] ${error?.message ?? JSON.stringify(error)}`);
 }
 
 export class DatabaseStorage implements IStorage {
 
-  // === Conversations ===
+  // =====================
+  //   CONVERSATIONS
+  // =====================
   async getConversations(userid: string): Promise<any[]> {
-    return await db
-      .select()
-      .from(conversations)
-      .where(eq(conversations.userid, userid))
-      .orderBy(desc(conversations.createdat));
+    const { data, error } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("userid", userid)
+      .order("createdat", { ascending: false });
+    if (error) supaErr("getConversations", error);
+    return data ?? [];
   }
 
   async createConversation(userid: string, title: string, systemprompt?: string): Promise<any> {
-    const [saved] = await db
-      .insert(conversations)
-      .values({
-        userid: userid,
-        title,
-        systemprompt: systemprompt || null
-      })
-      .returning();
-    return saved;
+    const { data, error } = await supabase
+      .from("conversations")
+      .insert({ userid, title, systemprompt: systemprompt ?? null })
+      .select()
+      .single();
+    if (error) supaErr("createConversation", error);
+    return data;
   }
 
   async getConversation(id: number): Promise<any> {
-    const [convo] = await db
-      .select()
-      .from(conversations)
-      .where(eq(conversations.id, id));
-    return convo;
+    const { data, error } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error && error.code !== "PGRST116") supaErr("getConversation", error);
+    return data ?? null;
   }
 
   async getMessages(conversationid: number): Promise<any[]> {
-    return await db.select().from(messages)
-      .where(eq(messages.conversationid, conversationid))
-      .orderBy(sql`${messages.createdat} ASC`);
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("conversationid", conversationid)
+      .order("createdat", { ascending: true });
+    if (error) supaErr("getMessages", error);
+    return data ?? [];
   }
 
   async addMessage(conversationid: number, role: string, content: string): Promise<any> {
-    const [msg] = await db.insert(messages).values({
-      conversationid: conversationid,
-      role,
-      content
-    }).returning();
-    return msg;
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({ conversationid, role, content })
+      .select()
+      .single();
+    if (error) supaErr("addMessage", error);
+    return data;
   }
 
-
-  // === Quizzes ===
+  // =====================
+  //   QUIZZES
+  // =====================
   async getQuizzes(): Promise<Quiz[]> {
-    return await db.select().from(quizzes);
+    const { data, error } = await supabase
+      .from("quizzes")
+      .select("*");
+    if (error) supaErr("getQuizzes", error);
+    return (data ?? []) as Quiz[];
   }
 
   async getQuiz(id: number): Promise<Quizwithquestions | undefined> {
-    const [quiz] = await db
-      .select()
-      .from(quizzes)
-      .where(eq(quizzes.id, id));
-
+    const { data: quiz, error: quizErr } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (quizErr) return undefined;
     if (!quiz) return undefined;
 
-    const questions = await db
-      .select()
-      .from(quizquestions)
-      .where(eq(quizquestions.quizid, id));
+    const { data: questions, error: qErr } = await supabase
+      .from("quizquestions")
+      .select("*")
+      .eq("quizid", id);
+    if (qErr) supaErr("getQuiz questions", qErr);
 
-    const questionIds = questions.map(q => q.id);
+    const questionIds = (questions ?? []).map((q: any) => q.id);
 
-    const options =
-      questionIds.length > 0
-        ? await db
-            .select()
-            .from(quizoptions)
-            .where(inArray(quizoptions.questionid, questionIds))
-        : [];
+    let options: any[] = [];
+    if (questionIds.length > 0) {
+      const { data: opts, error: oErr } = await supabase
+        .from("quizoptions")
+        .select("*")
+        .in("questionid", questionIds);
+      if (oErr) supaErr("getQuiz options", oErr);
+      options = opts ?? [];
+    }
 
-    const questionsWithOptions = questions.map(q => ({
+    const questionsWithOptions = (questions ?? []).map((q: any) => ({
       ...q,
-      options: options.filter(o => o.questionid === q.id)
+      options: options.filter((o: any) => o.questionid === q.id),
     }));
 
-    return {
-      ...quiz,
-      questions: questionsWithOptions
-    } as Quizwithquestions;
+    return { ...quiz, questions: questionsWithOptions } as Quizwithquestions;
   }
 
   async submitQuizResult(result: any): Promise<Quizresult> {
-    const [saved] = await db.insert(quizresults).values({
-      userid: result.userid,
-      quizid: result.quizid,
-      matchedparty: result.matchedparty,
-      partyscores: result.partyscores
-    }).returning();
-    return saved;
+    const { data, error } = await supabase
+      .from("quizresults")
+      .insert({
+        userid: result.userid,
+        quizid: result.quizid,
+        matchedparty: result.matchedparty,
+        partyscores: result.partyscores,
+      })
+      .select()
+      .single();
+    if (error) supaErr("submitQuizResult", error);
+    return data as Quizresult;
   }
 
-  // === Polls ===
+  // =====================
+  //   POLLS
+  // =====================
   async getPolls(userid?: string): Promise<Pollwithdetails[]> {
-    const pollsRows = await db
-      .select()
-      .from(polls)
-      .orderBy(desc(polls.createdat));
+    const { data: pollsRows, error: pollErr } = await supabase
+      .from("polls")
+      .select("*")
+      .order("createdat", { ascending: false });
+    if (pollErr) supaErr("getPolls", pollErr);
+    if (!pollsRows || pollsRows.length === 0) return [];
 
-    if (pollsRows.length === 0) return [];
+    const pollIds = pollsRows.map((p: any) => p.id);
 
-    const pollIds = pollsRows.map(p => p.id);
+    const { data: optionsRows, error: optErr } = await supabase
+      .from("polloptions")
+      .select("*")
+      .in("pollid", pollIds);
+    if (optErr) supaErr("getPolls options", optErr);
 
-    const optionsRows = await db
-      .select()
-      .from(polloptions)
-      .where(inArray(polloptions.pollid, pollIds));
+    const { data: votesRows, error: voteErr } = await supabase
+      .from("pollvotes")
+      .select("*")
+      .in("pollid", pollIds);
+    if (voteErr) supaErr("getPolls votes", voteErr);
 
-    const votesRows = await db
-      .select()
-      .from(pollvotes)
-      .where(inArray(pollvotes.pollid, pollIds));
-
-    return pollsRows.map(poll => {
-      const optionsForPoll = optionsRows.filter(o => o.pollid === poll.id);
-
+    return pollsRows.map((poll: any) => {
+      const optionsForPoll = (optionsRows ?? []).filter((o: any) => o.pollid === poll.id);
       let uservotedoptionid: number | undefined = undefined;
 
-      const optionsWithCounts = optionsForPoll.map(opt => {
-        const votesForOption = votesRows.filter(v => v.optionid === opt.id);
-
+      const optionsWithCounts = optionsForPoll.map((opt: any) => {
+        const votesForOption = (votesRows ?? []).filter((v: any) => v.optionid === opt.id);
         if (userid) {
-          const userVote = votesForOption.find(v => v.userid === userid);
+          const userVote = votesForOption.find((v: any) => v.userid === userid);
           if (userVote) uservotedoptionid = opt.id;
         }
-
-        return {
-          ...opt,
-          votes: votesForOption.length
-        };
+        return { ...opt, votes: votesForOption.length };
       });
 
-      return {
-        ...poll,
-        options: optionsWithCounts,
-        uservotedoptionid: uservotedoptionid
-      };
+      return { ...poll, options: optionsWithCounts, uservotedoptionid };
     });
   }
 
   async votePoll(pollid: number, optionid: number, userid: string): Promise<void> {
-    await db.insert(pollvotes).values({
-      pollid,
-      optionid,
-      userid
-    });
+    const { error } = await supabase
+      .from("pollvotes")
+      .insert({ pollid, optionid, userid });
+    if (error) supaErr("votePoll", error);
   }
 
   async hasVoted(pollid: number, userid: string): Promise<boolean> {
-    const [vote] = await db
-      .select()
-      .from(pollvotes)
-    .where(
-      and(
-        eq(pollvotes.pollid, pollid),
-        eq(pollvotes.userid, userid)
-      )
-    );
-
-    return !!vote;
+    const { data, error } = await supabase
+      .from("pollvotes")
+      .select("id")
+      .eq("pollid", pollid)
+      .eq("userid", userid)
+      .limit(1);
+    if (error) supaErr("hasVoted", error);
+    return (data ?? []).length > 0;
   }
 
-  // === Articles ===
+  // =====================
+  //   ARTICLES
+  // =====================
   async getArticles(): Promise<Article[]> {
-    return await db
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*")
+      .order("createdat", { ascending: false });
+    if (error) supaErr("getArticles", error);
+    return (data ?? []) as Article[];
+  }
+
+  async addArticle(article: {
+    title: string;
+    summary?: string | null;
+    content: string;
+    type: string;
+    source?: string | null;
+    sourceurl?: string | null;
+    imageurl?: string | null;
+  }): Promise<Article> {
+    const { data, error } = await supabase
+      .from("articles")
+      .insert(article)
       .select()
-      .from(articles)
-      .orderBy(desc(articles.createdat));
+      .single();
+    if (error) supaErr("addArticle", error);
+    return data as Article;
+  }
+
+  async articleExists(sourceurl: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from("articles")
+      .select("id")
+      .eq("sourceurl", sourceurl)
+      .limit(1);
+    if (error) supaErr("articleExists", error);
+    return (data ?? []).length > 0;
   }
 }
 

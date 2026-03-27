@@ -1,18 +1,6 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import * as schema from "@shared/schema";
+// Datenbankverbindung via Supabase JS Client (server/supabase-client.ts)
+// Dieser Stub existiert nur damit alte Imports nicht brechen.
+// Alle DB-Operationen laufen jetzt über storage.ts → supabase-client.ts
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL ist nicht gesetzt.");
-}
-
-export const pool = new Pool({ connectionString });
-
-pool.on("error", (err) => {
-  console.error("[DB] Verbindungsfehler:", err.message);
-});
-
-export const db = drizzle(pool, { schema });
-
+export const db = null as any;
+export const pool = null as any;

@@ -1,21 +1,17 @@
 import Parser from "rss-parser";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import { eq } from "drizzle-orm";
-import { articles } from "../shared/schema.js";
+import { createClient } from "@supabase/supabase-js";
 
-if (!process.env.DATABASE_URL) {
-  console.error("[News-Fetcher] DATABASE_URL fehlt – Abbruch.");
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("[News-Fetcher] SUPABASE_URL oder SUPABASE_KEY fehlt – Abbruch.");
   process.exit(1);
 }
 
-// Pool mit Error-Handler damit keine unbehandelten Fehler entstehen
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-pool.on("error", (err) => {
-  console.error("[News-Fetcher] Datenbankverbindungsfehler:", err.message);
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false, autoRefreshToken: false },
 });
-
-const db = drizzle(pool);
 
 type FeedItem = {
   title?: string;
@@ -38,13 +34,9 @@ const rssParser = new Parser<Record<string, unknown>, FeedItem>({
     ],
   },
   timeout: 20000,
-  headers: {
-    "User-Agent":
-      "Mozilla/5.0 (compatible; VoiceUpBot/1.0)",
-  },
+  headers: { "User-Agent": "Mozilla/5.0 (compatible; VoiceUpBot/1.0)" },
 });
 
-// RSS-Quellen: über Google News erreichbar (zuverlässig)
 const QUELLEN = [
   {
     name: "Welt",
@@ -64,7 +56,7 @@ const QUELLEN = [
   },
 ];
 
-const INTERVALL_MS = 4 * 60 * 60 * 1000; // alle 4 Stunden
+const INTERVALL_MS = 4 * 60 * 60 * 1000;
 
 function bildUrlExtrahieren(item: FeedItem): string | null {
   if (item["media:content"]?.$?.url) return item["media:content"]!.$!.url!;
@@ -88,26 +80,22 @@ function textBereinigen(roh: string): string {
     .substring(0, 600);
 }
 
-async function artikelSpeichern(
-  item: FeedItem,
-  quellName: string
-): Promise<boolean> {
+async function artikelSpeichern(item: FeedItem, quellName: string): Promise<boolean> {
   if (!item.title || !item.link) return false;
 
-  // Duplikat-Prüfung
-  const vorhandener = await db
-    .select({ id: articles.id })
-    .from(articles)
-    .where(eq(articles.sourceurl, item.link))
+  const { data: vorhandener } = await supabase
+    .from("articles")
+    .select("id")
+    .eq("sourceurl", item.link)
     .limit(1);
 
-  if (vorhandener.length > 0) return false;
+  if (vorhandener && vorhandener.length > 0) return false;
 
   const rohText = item.contentSnippet ?? item.content ?? item.summary ?? "";
   const zusammenfassung = textBereinigen(rohText);
   const bild = bildUrlExtrahieren(item);
 
-  await db.insert(articles).values({
+  const { error } = await supabase.from("articles").insert({
     title: item.title.trim(),
     summary: zusammenfassung || null,
     content: zusammenfassung || item.title.trim(),
@@ -117,14 +105,11 @@ async function artikelSpeichern(
     imageurl: bild,
   });
 
+  if (error) throw new Error(error.message);
   return true;
 }
 
-async function quelleAbrufen(
-  name: string,
-  url: string
-): Promise<{ neu: number; geprueft: number }> {
-  // 1. RSS-Feed abrufen (eigener try/catch)
+async function quelleAbrufen(name: string, url: string): Promise<{ neu: number; geprueft: number }> {
   let items: FeedItem[];
   try {
     const feed = await rssParser.parseURL(url);
@@ -135,21 +120,17 @@ async function quelleAbrufen(
     return { neu: 0, geprueft: 0 };
   }
 
-  // 2. Artikel in DB speichern (eigener try/catch)
   let neu = 0;
   for (const item of items) {
     try {
       const gespeichert = await artikelSpeichern(item, name);
       if (gespeichert) {
         neu++;
-        console.log(
-          `    + "${(item.title ?? "").substring(0, 65)}"`
-        );
+        console.log(`    + "${(item.title ?? "").substring(0, 65)}"`);
       }
     } catch (dbErr) {
       const meldung = dbErr instanceof Error ? dbErr.message : String(dbErr);
       console.error(`  ✗ DB-Fehler bei "${name}": ${meldung}`);
-      // Weiter mit dem nächsten Artikel
     }
   }
 
@@ -157,9 +138,7 @@ async function quelleAbrufen(
 }
 
 async function nachrichtenAbrufen(): Promise<void> {
-  console.log(
-    `\n[${new Date().toISOString()}] Nachrichtenabruf gestartet (${QUELLEN.length} Quellen)...`
-  );
+  console.log(`\n[${new Date().toISOString()}] Nachrichtenabruf gestartet (${QUELLEN.length} Quellen)...`);
 
   let gesamtNeu = 0;
 
@@ -170,31 +149,23 @@ async function nachrichtenAbrufen(): Promise<void> {
     gesamtNeu += neu;
   }
 
-  console.log(
-    `[${new Date().toISOString()}] Fertig: ${gesamtNeu} neue Artikel. Nächster Abruf in 4 Stunden.`
-  );
+  console.log(`[${new Date().toISOString()}] Fertig: ${gesamtNeu} neue Artikel. Nächster Abruf in 4 Stunden.`);
 }
 
 async function main(): Promise<void> {
   console.log("==============================================");
-  console.log("  VoiceUp News-Fetcher gestartet");
+  console.log("  VoiceUp News-Fetcher gestartet (Supabase)");
   console.log(`  Quellen: ${QUELLEN.map((q) => q.name).join(", ")}`);
   console.log("  Intervall: alle 4 Stunden");
   console.log("==============================================\n");
 
-  // Sofort beim Start und danach alle 4 Stunden
   while (true) {
     try {
       await nachrichtenAbrufen();
     } catch (err) {
-      console.error(
-        "Unerwarteter Fehler:",
-        err instanceof Error ? err.message : err
-      );
+      console.error("Unerwarteter Fehler:", err instanceof Error ? err.message : err);
     }
-    await new Promise<void>((resolve) =>
-      setTimeout(resolve, INTERVALL_MS)
-    );
+    await new Promise<void>((resolve) => setTimeout(resolve, INTERVALL_MS));
   }
 }
 
